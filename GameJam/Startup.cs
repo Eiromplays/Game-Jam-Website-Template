@@ -1,23 +1,20 @@
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OAuth;
-using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
+using AspNet.Security.OAuth.Discord;
+using GameJam.Api.Models;
+using GameJam.Api.Services;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace GameJam
 {
@@ -36,42 +33,68 @@ namespace GameJam
             services.AddControllersWithViews();
             services.AddRazorPages();
 
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = "Feide";
-            })
-               .AddCookie()
-               .AddOAuth("Feide", options =>
-               {
-                   options.ClientId = Configuration["Feide:ClientId"];
-                   options.ClientSecret = Configuration["Feide:ClientSecret"];
-                   options.CallbackPath = new PathString("/feide-oauth");
+            services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings:noreply"));
+            services.AddSingleton<IEmailSender, EmailSender>();
 
-                   options.AuthorizationEndpoint = "https://auth.dataporten.no/oauth/authorization";
-                   options.TokenEndpoint = "https://auth.dataporten.no/oauth/token";
-                   
-                   options.SaveTokens = true;
-                   options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "userid");
-                   options.ClaimActions.MapJsonKey(ClaimTypes.Name, "userinfo-name");
-                   options.ClaimActions.MapJsonKey("feide:email", "email");
-                   options.ClaimActions.MapJsonKey("feide:photo", "userinfo-photo");
+            services.AddAuthentication()
+                .AddGoogle(options =>
+                {
+                    IConfigurationSection googleAuthNSection =
+                        Configuration.GetSection("Authentication:Google");
 
-                   options.Events = new OAuthEvents
-                   {
-                       OnCreatingTicket = async context =>
-                       {
-                           var request = new HttpRequestMessage(HttpMethod.Get, context.Options.UserInformationEndpoint);
-                           request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                           request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", context.AccessToken);
-                           var response = await context.Backchannel.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, context.HttpContext.RequestAborted);
-                           response.EnsureSuccessStatusCode();
-                           var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-                           context.RunClaimActions(json.RootElement);
-                       }
-                   };
-               });
+                    if (!googleAuthNSection.GetValue<bool>("Enabled")) return;
+                    
+                    options.ClientId = googleAuthNSection["ClientId"];
+                    options.ClientSecret = googleAuthNSection["ClientSecret"];
+                })
+                .AddDiscord(options =>
+                {
+                    IConfigurationSection googleAuthNSection =
+                        Configuration.GetSection("Authentication:Discord");
+
+                    if (!googleAuthNSection.GetValue<bool>("Enabled")) return;
+
+                    options.Scope.Add("email");
+                    options.ClientId = googleAuthNSection["ClientId"];
+                    options.ClientSecret = googleAuthNSection["ClientSecret"];
+                })
+                .AddOAuth("Feide", options =>
+                {
+                    IConfigurationSection feideAuthNSection =
+                        Configuration.GetSection("Authentication:Feide");
+
+                    if (!feideAuthNSection.GetValue<bool>("Enabled")) return;
+
+                    options.ClientId = feideAuthNSection["ClientId"];
+                    options.ClientSecret = feideAuthNSection["ClientSecret"];
+                    options.CallbackPath = new PathString("/signin-oauth");
+
+                    options.AuthorizationEndpoint = "https://auth.dataporten.no/oauth/authorization";
+                    options.TokenEndpoint = "https://auth.dataporten.no/oauth/token";
+
+                    options.SaveTokens = true;
+                    options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "userid");
+                    options.ClaimActions.MapJsonKey(ClaimTypes.Name, "userinfo-name");
+                    options.ClaimActions.MapJsonKey("feide:email", "email");
+                    options.ClaimActions.MapJsonKey("feide:photo", "userinfo-photo");
+
+                    options.Events = new OAuthEvents
+                    {
+                        OnCreatingTicket = async context =>
+                        {
+                            var request =
+                                new HttpRequestMessage(HttpMethod.Get, context.Options.UserInformationEndpoint);
+                            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                            request.Headers.Authorization =
+                                new AuthenticationHeaderValue("Bearer", context.AccessToken);
+                            var response = await context.Backchannel.SendAsync(request,
+                                HttpCompletionOption.ResponseHeadersRead, context.HttpContext.RequestAborted);
+                            response.EnsureSuccessStatusCode();
+                            var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+                            context.RunClaimActions(json.RootElement);
+                        }
+                    };
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -87,13 +110,13 @@ namespace GameJam
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            app.UseHttpsRedirection();
+            app.UseDefaultFiles();
             app.UseStaticFiles();
 
             app.UseRouting();
 
-            app.UseAuthorization();
             app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

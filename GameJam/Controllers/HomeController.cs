@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GameJam.Controllers
 {
@@ -14,16 +15,12 @@ namespace GameJam.Controllers
             _logger = logger;
         }
 
-        public IActionResult Test()
-        {
-            return View();
-        }
-
         public IActionResult Index()
         {
             return View();
         }
 
+        [Authorize]
         public IActionResult Privacy()
         {
             return View();
