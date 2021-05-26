@@ -1,0 +1,13 @@
+﻿@model GameJam.Views.Home.TestModel
+@{
+    ViewData["Title"] = "Test";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        @if (User.Identity != null && !User.Identity.IsAuthenticated)
+        {
+            <a asp-controller="Auth" asp-action="Login" class="btn btn-outline-primary">Log In with Feide</a>
+        }
+    </div>
+</div>

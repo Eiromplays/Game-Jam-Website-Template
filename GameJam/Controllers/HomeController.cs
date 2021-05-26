@@ -1,11 +1,7 @@
 ﻿using GameJam.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace GameJam.Controllers
 {
@@ -16,6 +12,11 @@ namespace GameJam.Controllers
         public HomeController(ILogger<HomeController> logger)
         {
             _logger = logger;
+        }
+
+        public IActionResult Test()
+        {
+            return View();
         }
 
         public IActionResult Index()
