@@ -18,21 +18,12 @@ namespace GameJam.Areas.Identity.Pages.Account
     [AllowAnonymous]
     public class LoginModel : PageModel
     {
-        private readonly UserManager<GameJamUser> _userManager;
         private readonly SignInManager<GameJamUser> _signInManager;
-        private readonly ILogger<LoginModel> _logger;
 
-        public LoginModel(SignInManager<GameJamUser> signInManager, 
-            ILogger<LoginModel> logger,
-            UserManager<GameJamUser> userManager)
+        public LoginModel(SignInManager<GameJamUser> signInManager)
         {
-            _userManager = userManager;
             _signInManager = signInManager;
-            _logger = logger;
         }
-
-        [BindProperty]
-        public InputModel Input { get; set; }
 
         public IList<AuthenticationScheme> ExternalLogins { get; set; }
 
@@ -40,20 +31,6 @@ namespace GameJam.Areas.Identity.Pages.Account
 
         [TempData]
         public string ErrorMessage { get; set; }
-
-        public class InputModel
-        {
-            [Required]
-            [EmailAddress]
-            public string Email { get; set; }
-
-            [Required]
-            [DataType(DataType.Password)]
-            public string Password { get; set; }
-
-            [Display(Name = "Remember me?")]
-            public bool RememberMe { get; set; }
-        }
 
         public async Task OnGetAsync(string returnUrl = null)
         {

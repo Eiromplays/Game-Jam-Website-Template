@@ -105,6 +105,9 @@ namespace GameJam.Areas.Identity.Pages.Account
             if (result.Succeeded)
             {
                 _logger.LogInformation("{Name} logged in with {LoginProvider} provider.", info.Principal.Identity?.Name, info.LoginProvider);
+
+                await UpdateProfilePictureAsync(info);
+
                 return LocalRedirect(returnUrl);
             }
             if (result.IsLockedOut)
@@ -132,6 +135,22 @@ namespace GameJam.Areas.Identity.Pages.Account
             return Page();
         }
 
+        private async Task UpdateProfilePictureAsync(ExternalLoginInfo info)
+        {
+            var user = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
+            if (user == null) return;
+
+            var profilePicture = await GetProfilePictureAsync(info);
+
+            if (user.ProfilePicture.Equals(profilePicture, StringComparison.OrdinalIgnoreCase)) return;
+
+            user.ProfilePicture = profilePicture;
+
+            await _userManager.UpdateAsync(user);
+
+            _logger.LogInformation("Updated the profile picture for {Id}", user.Id);
+        }
+
         public async Task<IActionResult> OnPostConfirmationAsync(string returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");
@@ -145,33 +164,7 @@ namespace GameJam.Areas.Identity.Pages.Account
 
             if (ModelState.IsValid)
             {
-                var profilePicture = "";
-
-                foreach (var claim in info.Principal.Claims)
-                {
-                    if (_profilePictureClaims.Contains(claim.Type))
-                        profilePicture = claim.Value;
-                }
-
-                /* If the user tries to login with google it will download the profile picture using google's api. (Requires a API key for google's people API) */
-                if (info.LoginProvider.ToLower() == "google")
-                {
-                    try
-                    {
-                        var httpClient = new HttpClient();
-
-                        string peopleApiKey = _configuration["GoogleApiKeys:PeopleApiKey"];
-                        var googleAccountId = info.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
-                        var photosResponse = await httpClient.GetFromJsonAsync<PeopleApiPhotos>(
-                            $"https://people.googleapis.com/v1/people/{googleAccountId}?personFields=photos&key={peopleApiKey}");
-                        profilePicture = photosResponse?.photos.FirstOrDefault()?.url;
-                    }
-                    // If there is any exceptions they will be logged in console
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error while getting profile picture: \n {ex}");
-                    }
-                }
+                var profilePicture = await GetProfilePictureAsync(info);
 
                 var user = new GameJamUser { UserName = Input.Username, Email = Input.Email, ProfilePicture = profilePicture };
 
@@ -217,6 +210,44 @@ namespace GameJam.Areas.Identity.Pages.Account
             ProviderDisplayName = info.ProviderDisplayName;
             ReturnUrl = returnUrl;
             return Page();
+        }
+
+        private async Task<string> GetProfilePictureAsync(ExternalLoginInfo info)
+        {
+            var profilePicture = "";
+
+            foreach (var claim in info.Principal.Claims)
+            {
+                // Checks to see if the avatar hash for discord is set or not.
+                if (claim.Type.Equals(DiscordAuthenticationConstants.Claims.AvatarUrl,
+                    StringComparison.OrdinalIgnoreCase) && !info.Principal.HasClaim(c =>
+                    c.Type.Equals(DiscordAuthenticationConstants.Claims.AvatarHash,
+                        StringComparison.OrdinalIgnoreCase))) continue;
+
+                if (_profilePictureClaims.Contains(claim.Type))
+                    profilePicture = claim.Value;
+            }
+
+            /* If the user tries to login with google it will download the profile picture using google's api. (Requires a API key for google's people API) */
+            if (info.LoginProvider.ToLower() != "google") return profilePicture;
+
+            try
+            {
+                var httpClient = new HttpClient();
+
+                string peopleApiKey = _configuration["GoogleApiKeys:PeopleApiKey"];
+                var googleAccountId = info.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
+                var photosResponse = await httpClient.GetFromJsonAsync<PeopleApiPhotos>(
+                    $"https://people.googleapis.com/v1/people/{googleAccountId}?personFields=photos&key={peopleApiKey}");
+                profilePicture = photosResponse?.photos.FirstOrDefault()?.url;
+            }
+            // If there is any exceptions they will be logged in console
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error while getting profile picture: \n {ex}");
+            }
+
+            return profilePicture;
         }
     }
 }

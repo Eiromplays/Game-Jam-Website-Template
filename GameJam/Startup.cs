@@ -1,8 +1,11 @@
+using GameJam.Api.Models;
+using GameJam.Api.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -10,11 +13,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
-using AspNet.Security.OAuth.Discord;
-using GameJam.Api.Models;
-using GameJam.Api.Services;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace GameJam
 {
@@ -36,65 +34,7 @@ namespace GameJam
             services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings:noreply"));
             services.AddSingleton<IEmailSender, EmailSender>();
 
-            services.AddAuthentication()
-                .AddGoogle(options =>
-                {
-                    IConfigurationSection googleAuthNSection =
-                        Configuration.GetSection("Authentication:Google");
-
-                    if (!googleAuthNSection.GetValue<bool>("Enabled")) return;
-                    
-                    options.ClientId = googleAuthNSection["ClientId"];
-                    options.ClientSecret = googleAuthNSection["ClientSecret"];
-                })
-                .AddDiscord(options =>
-                {
-                    IConfigurationSection googleAuthNSection =
-                        Configuration.GetSection("Authentication:Discord");
-
-                    if (!googleAuthNSection.GetValue<bool>("Enabled")) return;
-
-                    options.Scope.Add("email");
-                    options.ClientId = googleAuthNSection["ClientId"];
-                    options.ClientSecret = googleAuthNSection["ClientSecret"];
-                })
-                .AddOAuth("Feide", options =>
-                {
-                    IConfigurationSection feideAuthNSection =
-                        Configuration.GetSection("Authentication:Feide");
-
-                    if (!feideAuthNSection.GetValue<bool>("Enabled")) return;
-
-                    options.ClientId = feideAuthNSection["ClientId"];
-                    options.ClientSecret = feideAuthNSection["ClientSecret"];
-                    options.CallbackPath = new PathString("/signin-oauth");
-
-                    options.AuthorizationEndpoint = "https://auth.dataporten.no/oauth/authorization";
-                    options.TokenEndpoint = "https://auth.dataporten.no/oauth/token";
-
-                    options.SaveTokens = true;
-                    options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "userid");
-                    options.ClaimActions.MapJsonKey(ClaimTypes.Name, "userinfo-name");
-                    options.ClaimActions.MapJsonKey("feide:email", "email");
-                    options.ClaimActions.MapJsonKey("feide:photo", "userinfo-photo");
-
-                    options.Events = new OAuthEvents
-                    {
-                        OnCreatingTicket = async context =>
-                        {
-                            var request =
-                                new HttpRequestMessage(HttpMethod.Get, context.Options.UserInformationEndpoint);
-                            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                            request.Headers.Authorization =
-                                new AuthenticationHeaderValue("Bearer", context.AccessToken);
-                            var response = await context.Backchannel.SendAsync(request,
-                                HttpCompletionOption.ResponseHeadersRead, context.HttpContext.RequestAborted);
-                            response.EnsureSuccessStatusCode();
-                            var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-                            context.RunClaimActions(json.RootElement);
-                        }
-                    };
-                });
+            ConfigureExternalProviders(services.AddAuthentication());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -125,6 +65,85 @@ namespace GameJam
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+            });
+        }
+
+        // Custom methods to register the external providers used
+
+        public void ConfigureExternalProviders(AuthenticationBuilder authenticationBuilder)
+        {
+            ConfigureGoogle(authenticationBuilder);
+            ConfigureDiscord(authenticationBuilder);
+            ConfigureFeide(authenticationBuilder);
+        }
+
+        public void ConfigureGoogle(AuthenticationBuilder authenticationBuilder)
+        {
+            IConfigurationSection googleAuthSection =
+                Configuration.GetSection("Authentication:Google");
+
+            if (!googleAuthSection.GetValue<bool>("Enabled")) return;
+
+            authenticationBuilder.AddGoogle(options =>
+            {
+                options.ClientId = googleAuthSection["ClientId"];
+                options.ClientSecret = googleAuthSection["ClientSecret"];
+            });
+        }
+
+        public void ConfigureDiscord(AuthenticationBuilder authenticationBuilder)
+        {
+            IConfigurationSection discordAuthSection =
+                Configuration.GetSection("Authentication:Discord");
+
+            if (!discordAuthSection.GetValue<bool>("Enabled")) return;
+
+            authenticationBuilder.AddDiscord(options =>
+            {
+                options.Scope.Add("email");
+                options.ClientId = discordAuthSection["ClientId"];
+                options.ClientSecret = discordAuthSection["ClientSecret"];
+            });
+        }
+
+        public void ConfigureFeide(AuthenticationBuilder authenticationBuilder)
+        {
+            IConfigurationSection feideAuthSection =
+                Configuration.GetSection("Authentication:Feide");
+
+            if (!feideAuthSection.GetValue<bool>("Enabled")) return;
+
+            authenticationBuilder.AddOAuth("Feide", options =>
+            {
+                options.ClientId = feideAuthSection["ClientId"];
+                options.ClientSecret = feideAuthSection["ClientSecret"];
+                options.CallbackPath = new PathString("/signin-oauth");
+
+                options.AuthorizationEndpoint = "https://auth.dataporten.no/oauth/authorization";
+                options.TokenEndpoint = "https://auth.dataporten.no/oauth/token";
+
+                options.SaveTokens = true;
+                options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "userid");
+                options.ClaimActions.MapJsonKey(ClaimTypes.Name, "userinfo-name");
+                options.ClaimActions.MapJsonKey("feide:email", "email");
+                options.ClaimActions.MapJsonKey("feide:photo", "userinfo-photo");
+
+                options.Events = new OAuthEvents
+                {
+                    OnCreatingTicket = async context =>
+                    {
+                        var request =
+                            new HttpRequestMessage(HttpMethod.Get, context.Options.UserInformationEndpoint);
+                        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                        request.Headers.Authorization =
+                            new AuthenticationHeaderValue("Bearer", context.AccessToken);
+                        var response = await context.Backchannel.SendAsync(request,
+                            HttpCompletionOption.ResponseHeadersRead, context.HttpContext.RequestAborted);
+                        response.EnsureSuccessStatusCode();
+                        var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+                        context.RunClaimActions(json.RootElement);
+                    }
+                };
             });
         }
     }
