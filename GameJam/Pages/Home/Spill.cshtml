@@ -1,0 +1,30 @@
+﻿@page
+@model GameJam.Pages.Home.SpillModel
+@{
+    ViewData["Title"] = "Spill";
+    Layout = "_Layout";
+}
+
+<div class="text-center">
+    <h1 class="display-4 header"><strong>Spill:</strong></h1>
+</div>
+
+<div id="spill">
+    <center>
+        <div class="container">
+            <div class="row">
+                @foreach (var game in Model.Games)
+                {
+                    <div class="col-sm">
+                        <div class="spill-item">
+                            <a class="h1 spill-item-title" href="game/@game.Name">@game.Name</a>
+                            <img class="spill-item-image" src="@game.Picture" alt="@game.Name's profile picture" />
+                            <h3 class="spill-item-description">Beskrivelse</h3>
+                            <h3 class="spill-item-publisher">Laget av: <br/> @game.Publisher</h3>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </center>
+</div>

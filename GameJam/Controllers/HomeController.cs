@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
-using Microsoft.AspNetCore.Authorization;
 
 namespace GameJam.Controllers
 {
@@ -20,7 +19,16 @@ namespace GameJam.Controllers
             return View();
         }
 
-        [Authorize]
+        public IActionResult Om()
+        {
+            return View();
+        }
+
+        public IActionResult Spill()
+        {
+            return View();
+        }
+
         public IActionResult Privacy()
         {
             return View();

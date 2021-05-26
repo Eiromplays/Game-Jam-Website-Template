@@ -1,71 +1,225 @@
-﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-for details on configuring this project to bundle and minify static web assets. */
-
-a.navbar-brand {
-  white-space: normal;
-  text-align: center;
-  word-break: break-all;
+﻿:root {
+    --background: #324766;
+    --secondary-background: #1D3557;
+    --primary: #EC9A9A;
+    --secondary: #F1FAEE;
+    --cyan: #CDEAE5;
+    --blue: #A8DADC;
+    --pewter-blue: #77ABBD;
+    --celadon-blue: #457B9D;
+    --pink: #E96A70;
+    --red: #E63946;
 }
 
-/* Provide sufficient contrast against white background */
-a {
-  color: #0366d6;
-}
-
-.btn-primary {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+.navbar {
+    background-color: var(--secondary-background);
 }
 
 .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+    color: var(--secondary);
+}
+
+.nav-link {
+    font-size: 20px;
+}
+
+.nav-link.active {
+    color: var(--secondary) !important;
+    background-color: var(--red) !important;
+    border-color: var(--red) !important;
+}
+
+.nav-username {
+    color: var(--blue);
+}
+
+.nav-username:hover {
+    color: var(--secondary);
+}
+
+body {
+    /* Margin bottom by footer height */
+    margin-bottom: 60px;
+
+    color: var(--secondary);
+    background-color: var(--background);
+}
+
+a {
+    color: var(--secondary);
+}
+
+a:hover {
+    color: var(--primary);
+}
+
+a.navbar-brand {
+    white-space: normal;
+    text-align: center;
+    word-break: break-all;
+    color: var(--pink);
+    font-size: 30px;
+}
+
+.btn-primary {
+    color: var(--secondary);
+    background-color: var(--red);
+    border-color: var(--red);
+}
+
+.btn-primary:hover {
+    color: var(--cyan);
+    background-color: var(--pink);
+    border-color: var(--pink);
+}
+
+.btn-transparent {
+    background-color: transparent;
+}
+
+.logout-btn {
+    color: var(--secondary);
+}
+
+.logout-btn:hover {
+    color: var(--primary);
 }
 
 /* Sticky footer styles
 -------------------------------------------------- */
 html {
-  font-size: 14px;
+    font-size: 14px;
 }
 @media (min-width: 768px) {
   html {
-    font-size: 16px;
+        font-size: 16px;
   }
 }
 
 .border-top {
-  border-top: 1px solid #e5e5e5;
+    border-top: 1px solid var(--secondary);
 }
 .border-bottom {
-  border-bottom: 1px solid #e5e5e5;
+    border-bottom: 1px solid var(--secondary);
 }
 
 .box-shadow {
-  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+    box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
 }
 
 button.accept-policy {
-  font-size: 1rem;
-  line-height: inherit;
+    font-size: 1rem;
+    line-height: inherit;
 }
 
 /* Sticky footer styles
 -------------------------------------------------- */
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
-body {
-  /* Margin bottom by footer height */
-  margin-bottom: 60px;
-}
 .footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  white-space: nowrap;
-  line-height: 60px; /* Vertically center the text there */
+    text-align: center;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    white-space: nowrap;
+    line-height: 60px; /* Vertically center the text there */
+}
+
+.header {
+    color: var(--pink);
+}
+
+.information-text {
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
+
+.home {
+    color: var(--cyan);
+}
+
+.home-påmelding-btn {
+    background-color: var(--red);
+    color: var(--secondary);
+    width: 75%;
+}
+
+.home-påmelding-btn:hover {
+    color: var(--secondary);
+}
+
+#om {
+    margin-top:30px;
+}
+
+.om-team-item {
+    margin-top: 20px;
+    margin-bottom: 25px;
+    background-color: var(--celadon-blue);
+    word-break: break-word;
+    max-width: 300px;
+    max-height: 350px;
+    width: 100%;
+    border-radius: 10px;
+    display: grid;
+}
+
+.om-team-item-image {
+    width: 250px;
+    height: 250px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    padding: 15px;
+}
+
+.om-team-item-title {
+    color: var(--primary);
+    text-decoration: none !important;
+}
+
+.om-team-item-role {
+    color: var(--secondary);
+}
+
+#spill {
+    margin-top: 30px;
+}
+
+.spill-item {
+    margin-top: 20px;
+    margin-bottom: 25px;
+    background-color: var(--celadon-blue);
+    word-break: break-word;
+    max-width: 400px;
+    max-height: 500px;
+    width: 100%;
+    border-radius: 10px;
+    display: grid;
+}
+
+.spill-item-image {
+    width: 250px;
+    height: 250px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    padding: 15px;
+}
+
+.spill-item-title {
+    color: var(--pink);
+    text-decoration: none !important;
+}
+
+.spill-item-description {
+    color: var(--primary);
+}
+
+.spill-item-publisher {
+    color: var(--secondary);
 }
