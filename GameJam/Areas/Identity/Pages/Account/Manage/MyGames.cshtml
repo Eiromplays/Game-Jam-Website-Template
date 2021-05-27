@@ -1,15 +1,16 @@
 ﻿@page
-@model GameJam.Pages.Home.SpillModel
+@model GameJam.Areas.Identity.Pages.Account.Manage.MyGames
 @{
-    ViewData["Title"] = "Spill";
-    Layout = "_Layout";
+    ViewData["Title"] = "My Games";
+    ViewData["ActivePage"] = ManageNavPages.MyGames;
 }
 
+<partial name="_StatusMessage" model="Model.StatusMessage" />
 
-@if (Model.Games != null && Model.Games.Any())
+@if (Model.Games != null && Model.Games.Any() && Model.EditGame == null)
 {
     <div class="text-center">
-        <h1 class="display-4 header"><strong>Games:</strong></h1>
+        <h1 class="display-4 header"><strong>Your Games:</strong></h1>
     </div>
 
     <div id="spill">
@@ -20,6 +21,21 @@
                     {
                         <div class="col-sm-3 col-md-4">
                             <div class="spill-item">
+                                @if (Model.GamesThatCanBeEdited.Contains(game.Id))
+                                {
+                                    <div class="delete-game-form">
+                                        <div class="container">
+                                            <div class="row justify-content-center">
+                                                <div class="col-sm-1">
+                                                    <a href="?deleteGameId=@game.Id"><i class="fas fa-trash"></i></a>
+                                                </div>
+                                                <div class="col-sm-1">
+                                                    <a href="?editGameId=@game.Id"><i class="fas fa-edit"></i></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
                                 <a class="h1 spill-item-title" href="game/@game.Name">@game.Name</a>
                                 @if (game.Images != null && game.Images.Any())
                                 {
@@ -143,9 +159,141 @@
         </center>
     </div>
 }
+else if (Model.EditGame == null)
+{
+    <h1>You don't have any uploaded games do you want to upload one? <a href="#">Upload Game</a></h1>
+}
 else
 {
-    <div class="text-center">
-        <h1 class="display-4 header"><strong>Failed to load games.</strong></h1>
-    </div>
+<center>
+    <form id="edit-game-form" method="post">
+        <div class="spill-item">
+            <div class="form-group">
+                <label asp-for="Input.Name" class="h3"></label>
+                <input asp-for="Input.Name" class="form-control spill-input" />
+                <span asp-validation-for="Input.Name" class="text-danger"></span>
+            </div>
+            @if (Model.EditGame.Images != null && Model.EditGame.Images.Any())
+            {
+                <div id="images-@Model.EditGame.Id" class="carousel slide" data-ride="carousel">
+
+                    <!-- Indicators -->
+                    <ul class="carousel-indicators">
+                        @for (var i = 0; i < Model.EditGame.Images.Count; i++)
+                        {
+                            if (Model.EditGame.Images.First().Equals(Model.EditGame.Images[i]))
+                            {
+                                <li data-target="#images-@Model.EditGame.Id" data-slide-to="@i" class="active"></li>
+                            }
+                            else
+                            {
+                                <li data-target="#images-@Model.EditGame.Id" data-slide-to="@i"></li>
+                            }
+                        }
+                    </ul>
+
+                    <!-- The slideshow -->
+                    <div class="carousel-inner">
+                        @foreach (var image in Model.EditGame.Images)
+                        {
+                            if (Model.EditGame.Images.First().Equals(image))
+                            {
+                                <div class="carousel-item active">
+                                    <img class="spill-item-image" src="@image" alt="@image">
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="carousel-item">
+                                    <img class="spill-item-image" src="@image" alt="@image">
+                                </div>
+                            }
+                        }
+                    </div>
+
+                    <!-- Left and right controls -->
+                    <a class="carousel-control-prev" href="#images-@Model.EditGame.Id" data-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
+                    </a>
+                    <a class="carousel-control-next" href="#images-@Model.EditGame.Id" data-slide="next">
+                        <span class="carousel-control-next-icon"></span>
+                    </a>
+                </div>
+            }
+            else
+            {
+                <h5>No Images uploaded.</h5>
+            }
+
+            @if (Model.EditGame.Videos != null && Model.EditGame.Videos.Any())
+            {
+                <!--Carousel Wrapper-->
+                <div id="videos-@Model.EditGame.Id" class="carousel slide carousel-fade" data-ride="carousel">
+                    <!--Indicators-->
+                    <ol class="carousel-indicators">
+                        @for (var i = 0; i < Model.EditGame.Videos.Count; i++)
+                        {
+                            if (Model.EditGame.Videos.First().Equals(Model.EditGame.Videos[i]))
+                            {
+                                <li data-target="#videos-@Model.EditGame.Id" data-slide-to="@i" class="active"></li>
+                            }
+                            else
+                            {
+                                <li data-target="#videos-@Model.EditGame.Id" data-slide-to="@i"></li>
+                            }
+                        }
+                    </ol>
+                    <!--/.Indicators-->
+                    <!--Slides-->
+                    <div class="carousel-inner" role="listbox">
+                        @foreach (var video in Model.EditGame.Videos)
+                        {
+                            if (Model.EditGame.Videos.First().Equals(video))
+                            {
+                                <center>
+                                    <div class="carousel-item active">
+                                        <iframe class="carousel-item-border" src="@video" width="650" height="450"></iframe>
+                                    </div>
+                                </center>
+                            }
+                            else
+                            {
+                                <center>
+                                    <div class="carousel-item">
+                                        <iframe class="carousel-item-border" src="@video" width="650" height="450"></iframe>
+                                    </div>
+                                </center>
+                            }
+                        }
+                    </div>
+                    <!--/.Slides-->
+                    <!--Controls-->
+                    <a class="carousel-control-prev" href="#videos-@Model.EditGame.Id" role="button" data-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="carousel-control-next" href="#videos-@Model.EditGame.Id" role="button" data-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                    <!--/.Controls-->
+                </div>
+                <!--Carousel Wrapper-->
+            }
+            else
+            {
+                <h5>No Videos uploaded.</h5>
+            }
+
+            <div class="form-group">
+                <label asp-for="Input.Description"></label>
+                <textarea asp-for="Input.Description" class="form-control spill-input"></textarea>
+                <span asp-validation-for="Input.Description" class="text-danger"></span>
+            </div>
+
+            <h3 class="spill-item-publisher">Made by: <br /> @Model.EditGame.PublisherUserId</h3>
+        </div>
+        <button id="change-email-button" type="submit" asp-page-handler="EditGame" class="btn btn-primary">Edit Game</button>
+    </form>
+</center>
 }

@@ -1,0 +1,18 @@
+﻿@page
+@model GameJam.Areas.Identity.Pages.Account.Manage.RolesModel
+@{
+    ViewData["Title"] = "Roles";
+    ViewData["ActivePage"] = ManageNavPages.Roles;
+}
+
+@if (Model.Roles != null && Model.Roles.Any())
+{
+    @foreach (var role in Model.Roles)
+    {
+        <h1>@role.Name</h1>
+    }
+}
+else
+{
+    <h1>Unable to load roles, no roles found.</h1>
+}

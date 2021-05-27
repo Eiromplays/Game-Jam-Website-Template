@@ -1,5 +1,6 @@
 ﻿using GameJam.Areas.Identity.Data;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,11 +13,18 @@ namespace GameJam.Areas.Identity
         public void Configure(IWebHostBuilder builder)
         {
             builder.ConfigureServices((context, services) => {
-                services.AddDbContext<GameJamDbContext>(options =>
+                services.AddDbContext<GameJamDbContext>( options =>
+                {
                     options.UseNpgsql(
-                        context.Configuration.GetConnectionString("GameJamDbContextConnection")));
+                        context.Configuration.GetConnectionString("GameJamDbContextConnection"));
 
-                services.AddDefaultIdentity<GameJamUser>(options => options.SignIn.RequireConfirmedAccount = true)
+                });
+
+                services.AddDefaultIdentity<GameJamUser>(options =>
+                    {
+                        options.SignIn.RequireConfirmedAccount = true;
+                    })
+                    .AddRoles<IdentityRole>()
                     .AddEntityFrameworkStores<GameJamDbContext>();
             });
         }

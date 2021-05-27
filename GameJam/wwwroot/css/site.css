@@ -196,7 +196,6 @@ html {
     background-color: var(--celadon-blue);
     word-break: break-word;
     max-width: 400px;
-    max-height: 500px;
     width: 100%;
     border-radius: 10px;
     display: grid;
@@ -222,4 +221,32 @@ html {
 
 .spill-item-publisher {
     color: var(--secondary);
+    padding: 10px;
+    font-size: 150%;
+}
+
+.spill-input-name {
+    width: 50%;
+}
+
+.spill-input {
+    text-align: center;
+    color: var(--celadon-blue);
+    background-color: var(--primary);
+    width: 50%;
+    height: auto;
+}
+.spill-input:focus{
+    text-align: center;
+    background-color: var(--pink);
+    width: 50%;
+    height: auto;
+}
+
+.access-denied-header {
+    color: var(--red);
+}
+
+.delete-game-form {
+    margin-top: 15px;
 }

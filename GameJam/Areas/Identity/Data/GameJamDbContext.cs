@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using GameJam.Api.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameJam.Areas.Identity.Data
 {
     public class GameJamDbContext : IdentityDbContext<GameJamUser>
     {
+        public DbSet<Game> Games { get; set; }
         public GameJamDbContext(DbContextOptions<GameJamDbContext> options)
             : base(options)
         {

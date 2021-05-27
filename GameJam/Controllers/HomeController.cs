@@ -1,4 +1,5 @@
-﻿using GameJam.Models;
+﻿using GameJam.Api.Authorize;
+using GameJam.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
@@ -30,6 +31,11 @@ namespace GameJam.Controllers
         }
 
         public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        public IActionResult AccessDenied()
         {
             return View();
         }

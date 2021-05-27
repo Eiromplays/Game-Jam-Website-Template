@@ -1,6 +1,20 @@
-﻿@inject SignInManager<GameJamUser> SignInManager
+﻿@using Microsoft.Extensions.Options
+@using GameJam.Api.Models
+@inject SignInManager<GameJamUser> SignInManager
+@inject UserManager<GameJamUser> UserManager
+@inject IOptions<DefaultRoleNames> RoleNames
+
 @{
     var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
+
+    var user = await UserManager.GetUserAsync(User);
+    var isAdmin = false;
+    var isParticipant = false;
+    if (user != null && RoleNames.Value != null)
+    {
+        isAdmin = await UserManager.IsInRoleAsync(user, RoleNames.Value.AdministratorRoleName);
+        isParticipant = await UserManager.IsInRoleAsync(user, RoleNames.Value.ParticipantRoleName);
+    }
 }
 <ul class="nav nav-pills flex-column">
     <li class="nav-item"><a class="nav-link @ManageNavPages.IndexNavClass(ViewContext)" id="profile" asp-page="./Index">Profile</a></li>
@@ -8,6 +22,14 @@
     @if (hasExternalLogins)
     {
         <li id="external-logins" class="nav-item"><a id="external-login" class="nav-link @ManageNavPages.ExternalLoginsNavClass(ViewContext)" asp-page="./ExternalLogins">External logins</a></li>
+    }
+    @if (isParticipant)
+    {
+        <li class="nav-item"><a class="nav-link @ManageNavPages.MyGamesNavClass(ViewContext)" id="upload-game" asp-page="./MyGames">My Games</a></li>
+    }
+    @if (isAdmin)
+    {
+        <li class="nav-item"><a class="nav-link @ManageNavPages.RolesNavClass(ViewContext)" id="roles" asp-page="./Roles">Roles</a></li>
     }
     <li class="nav-item"><a class="nav-link @ManageNavPages.PersonalDataNavClass(ViewContext)" id="personal-data" asp-page="./PersonalData">Personal data</a></li>
 </ul>

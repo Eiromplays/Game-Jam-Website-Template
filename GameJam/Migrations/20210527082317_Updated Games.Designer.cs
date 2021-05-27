@@ -4,15 +4,17 @@ using System.Collections.Generic;
 using GameJam.Areas.Identity.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace GameJam.Migrations
 {
     [DbContext(typeof(GameJamDbContext))]
-    partial class GameJamDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210527082317_Updated Games")]
+    partial class UpdatedGames
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -27,9 +29,6 @@ namespace GameJam.Migrations
 
                     b.Property<bool>("Approved")
                         .HasColumnType("boolean");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
 
                     b.Property<string>("DownloadLink")
                         .HasColumnType("text");

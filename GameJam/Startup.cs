@@ -1,5 +1,7 @@
+using GameJam.Api.Interfaces;
 using GameJam.Api.Models;
 using GameJam.Api.Services;
+using GameJam.Areas.Identity;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Builder;
@@ -13,6 +15,9 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.Logging;
 
 namespace GameJam
 {
@@ -32,7 +37,11 @@ namespace GameJam
             services.AddRazorPages();
 
             services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings:noreply"));
+
+            services.Configure<DefaultRoleNames>(Configuration.GetSection("DefaultRoles"));
+
             services.AddSingleton<IEmailSender, EmailSender>();
+            services.AddScoped<IGameRepository, GameRepository>();
 
             ConfigureExternalProviders(services.AddAuthentication());
         }
@@ -60,12 +69,13 @@ namespace GameJam
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
-                endpoints.MapRazorPages();
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapRazorPages();
             });
+
+            Task.Run(() => new IdentitySeed(Configuration).CreateRole(app.ApplicationServices));
         }
 
         // Custom methods to register the external providers used
