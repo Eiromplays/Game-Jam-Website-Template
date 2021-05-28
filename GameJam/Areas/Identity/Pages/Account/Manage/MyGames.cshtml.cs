@@ -48,6 +48,14 @@ namespace GameJam.Areas.Identity.Pages.Account.Manage
             [Required]
             [Display(Name = "Description:")]
             public string Description { get; set; }
+
+            [Required]
+            [Display(Name = "Download link:")]
+            [Url]
+            public string DownloadLink { get; set; }
+
+            [Required]
+            public string GameId { get; set; }
         }
 
         public async Task<IActionResult> OnGetAsync(string deleteGameId, string editGameId)
@@ -83,8 +91,10 @@ namespace GameJam.Areas.Identity.Pages.Account.Manage
 
                     Input = new InputModel
                     {
+                        GameId = EditGame.Id,
                         Name = EditGame.Name,
-                        Description = EditGame.Description
+                        Description = EditGame.Description,
+                        DownloadLink = EditGame.DownloadLink
                     };
 
                     return Page();
@@ -132,6 +142,78 @@ namespace GameJam.Areas.Identity.Pages.Account.Manage
         public void GetGamesUserCanEdit(string userId)
         {
             GamesThatCanBeEdited.AddRange(Games.Where(g => g.PublisherUserId == userId).Select(g => g.Id));
+        }
+
+        public async Task<IActionResult> OnPostEditGameAsync()
+        {
+            if (!ModelState.IsValid)
+            {
+                
+                return Page();
+            }
+
+            var game = await _gameRepository.GetGameAsync(Input.GameId);
+            if (game == null)
+            {
+                StatusMessage = "Error Game not found";
+                return RedirectToPage();
+            }
+
+            game.Description = Input.Description;
+            game.Name = Input.Name;
+            game.DownloadLink = Input.DownloadLink;
+
+            var result = await _gameRepository.UpdateGameAsync(game);
+
+            if (result.Succeeded)
+            {
+                StatusMessage = "Successfully updated game";
+                return RedirectToPage(new {editGameId = game.Id});
+            }
+
+            return RedirectToPage(new { editGameId  = game.Id});
+        }
+
+        public async Task<IActionResult> OnPostDeletePictureAsync(DeleteModel deleteModel)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null || deleteModel == null)
+            {
+                return Content(Url.Page("./MyGames"));
+            }
+
+            var result = await _gameRepository.RemoveImageAsync(deleteModel.GameId, deleteModel.Value);
+
+            if (!result.Succeeded)
+            {
+                StatusMessage = "Unable to delete image.";
+                return Content(Url.Page("./MyGames", new { editGameId = deleteModel.GameId }));
+            }
+
+            StatusMessage = "Successfully deleted image.";
+            return Content(Url.Page("./MyGames", new {editGameId = deleteModel.GameId}));
+        }
+
+        public async Task<IActionResult> OnPostDeleteVideoAsync(DeleteModel deleteModel)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null || deleteModel == null)
+            {
+                return Content(Url.Page("./MyGames"));
+            }
+
+            var result = await _gameRepository.RemoveVideoAsync(deleteModel.GameId, deleteModel.Value);
+
+            if (!result.Succeeded)
+            {
+                StatusMessage = "Unable to delete image.";
+                return Content(Url.Page("./MyGames", new { editGameId = deleteModel.GameId }));
+            }
+
+            StatusMessage = "Successfully deleted video.";
+            return Content(Url.Page("./MyGames", new { editGameId = deleteModel.GameId }));
         }
     }
 }

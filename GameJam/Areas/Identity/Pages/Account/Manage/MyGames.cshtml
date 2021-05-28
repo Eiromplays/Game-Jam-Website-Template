@@ -43,34 +43,42 @@
 
                                         <!-- Indicators -->
                                         <ul class="carousel-indicators">
-                                            @for (var i = 0; i < game.Images.Count; i++)
-                                            {
-                                                if (game.Images.First().Equals(game.Images[i]))
+                                            @{
+                                                var active = true;
+                                                for (var i = 0; i < game.Images.Count; i++)
                                                 {
-                                                    <li data-target="#images-@game.Id" data-slide-to="@i" class="active"></li>
-                                                }
-                                                else
-                                                {
-                                                    <li data-target="#images-@game.Id" data-slide-to="@i"></li>
+                                                    if (active)
+                                                    {
+                                                        <li data-target="#images-@game.Id" data-slide-to="@i" class="active"></li>
+                                                        active = false;
+                                                    }
+                                                    else
+                                                    {
+                                                        <li data-target="#images-@game.Id" data-slide-to="@i"></li>
+                                                    }
                                                 }
                                             }
                                         </ul>
 
                                         <!-- The slideshow -->
                                         <div class="carousel-inner">
-                                            @foreach (var image in game.Images)
-                                            {
-                                                if (game.Images.First().Equals(image))
+                                            @{
+                                                active = true;
+                                                foreach (var image in game.Images)
                                                 {
-                                                    <div class="carousel-item active">
-                                                        <img class="spill-item-image" src="@image" alt="@image">
-                                                    </div>
-                                                }
-                                                else
-                                                {
-                                                    <div class="carousel-item">
-                                                        <img class="spill-item-image" src="@image" alt="@image">
-                                                    </div>
+                                                    if (active)
+                                                    {
+                                                        <div class="carousel-item active">
+                                                            <img class="spill-item-image" src="@image" alt="@image">
+                                                        </div>
+                                                        active = false;
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="carousel-item">
+                                                            <img class="spill-item-image" src="@image" alt="@image">
+                                                        </div>
+                                                    }
                                                 }
                                             }
                                         </div>
@@ -91,58 +99,59 @@
 
                                 @if (game.Videos != null && game.Videos.Any())
                                 {
-                                    <!--Carousel Wrapper-->
-                                    <div id="videos-@game.Id" class="carousel slide carousel-fade" data-ride="carousel">
-                                        <!--Indicators-->
-                                        <ol class="carousel-indicators">
-                                            @for (var i = 0; i < game.Videos.Count; i++)
-                                            {
-                                                if (game.Videos.First().Equals(game.Videos[i]))
+                                    <div id="videos-@game.Id" class="carousel slide" data-ride="carousel">
+
+                                        <!-- Indicators -->
+                                        <ul class="carousel-indicators">
+                                            @{
+                                                var active = true;
+                                                for (var i = 0; i < game.Videos.Count; i++)
                                                 {
-                                                    <li data-target="#videos-@game.Id" data-slide-to="@i" class="active"></li>
-                                                }
-                                                else
-                                                {
-                                                    <li data-target="#videos-@game.Id" data-slide-to="@i"></li>
+                                                    if (active)
+                                                    {
+                                                        <li data-target="#videos-@game.Id" data-slide-to="@i" class="active"></li>
+                                                        active = false;
+                                                    }
+                                                    else
+                                                    {
+                                                        <li data-target="#videos-@game.Id" data-slide-to="@i"></li>
+                                                    }
                                                 }
                                             }
-                                        </ol>
-                                        <!--/.Indicators-->
-                                        <!--Slides-->
-                                        <div class="carousel-inner" role="listbox">
-                                            @foreach (var video in game.Videos)
-                                            {
-                                                if (game.Videos.First().Equals(video))
+                                        </ul>
+
+                                        <!-- The slideshow -->
+                                        <div class="carousel-inner">
+                                            @{
+                                                active = true;
+                                                foreach (var video in game.Videos)
                                                 {
-                                                    <center>
+                                                    if (active)
+                                                    {
                                                         <div class="carousel-item active">
-                                                            <iframe class="carousel-item-border" src="@video" width="650" height="450"></iframe>
+                                                            <iframe class="responsive-iframe" src="@video"></iframe>
                                                         </div>
-                                                    </center>
-                                                }
-                                                else
-                                                {
-                                                    <center>
+
+                                                        active = false;
+                                                    }
+                                                    else
+                                                    {
                                                         <div class="carousel-item">
-                                                            <iframe class="carousel-item-border" src="@video" width="650" height="450"></iframe>
+                                                            <iframe class="responsive-iframe" src="@video"></iframe>
                                                         </div>
-                                                    </center>
+                                                    }
                                                 }
                                             }
                                         </div>
-                                        <!--/.Slides-->
-                                        <!--Controls-->
-                                        <a class="carousel-control-prev" href="#videos-@game.Id" role="button" data-slide="prev">
-                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                            <span class="sr-only">Previous</span>
+
+                                        <!-- Left and right controls -->
+                                        <a class="carousel-control-prev" href="#videos-@game.Id" data-slide="prev">
+                                            <span class="carousel-control-prev-icon"></span>
                                         </a>
-                                        <a class="carousel-control-next" href="#videos-@game.Id" role="button" data-slide="next">
-                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                            <span class="sr-only">Next</span>
+                                        <a class="carousel-control-next" href="#videos-@game.Id" data-slide="next">
+                                            <span class="carousel-control-next-icon"></span>
                                         </a>
-                                        <!--/.Controls-->
                                     </div>
-                                    <!--Carousel Wrapper-->
                                 }
                                 else
                                 {
@@ -167,11 +176,16 @@ else
 {
 <center>
     <form id="edit-game-form" method="post">
+        <div asp-validation-summary="All" class="text-danger"></div>
         <div class="spill-item">
+            <div class="form-group d-none">
+                <label asp-for="Input.GameId" class="h3"></label>
+                <input asp-for="Input.GameId" class="form-control spill-input" />
+            </div>
+
             <div class="form-group">
                 <label asp-for="Input.Name" class="h3"></label>
                 <input asp-for="Input.Name" class="form-control spill-input" />
-                <span asp-validation-for="Input.Name" class="text-danger"></span>
             </div>
             @if (Model.EditGame.Images != null && Model.EditGame.Images.Any())
             {
@@ -179,36 +193,48 @@ else
 
                     <!-- Indicators -->
                     <ul class="carousel-indicators">
-                        @for (var i = 0; i < Model.EditGame.Images.Count; i++)
-                        {
-                            if (Model.EditGame.Images.First().Equals(Model.EditGame.Images[i]))
+                        @{
+                            var active = true;
+                            for (var i = 0; i < Model.EditGame.Images.Count; i++)
                             {
-                                <li data-target="#images-@Model.EditGame.Id" data-slide-to="@i" class="active"></li>
-                            }
-                            else
-                            {
-                                <li data-target="#images-@Model.EditGame.Id" data-slide-to="@i"></li>
+                                if (active)
+                                {
+                                    <li data-target="#images-@Model.EditGame.Id" data-slide-to="@i" class="active"></li>
+                                    active = false;
+                                }
+                                else
+                                {
+                                    <li data-target="#images-@Model.EditGame.Id" data-slide-to="@i"></li>
+                                }
                             }
                         }
                     </ul>
 
                     <!-- The slideshow -->
                     <div class="carousel-inner">
-                        @foreach (var image in Model.EditGame.Images)
-                        {
-                            if (Model.EditGame.Images.First().Equals(image))
+                        @{
+                            active = true;
+                            @foreach (var image in Model.EditGame.Images)
                             {
-                                <div class="carousel-item active">
-                                    <img class="spill-item-image" src="@image" alt="@image">
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="carousel-item">
-                                    <img class="spill-item-image" src="@image" alt="@image">
-                                </div>
+                                if (active)
+                                {
+                                    <div class="carousel-item active">
+                                        <img value="@image" gameId="@Model.EditGame.Id" onclick="Delete(this, 'DeletePicture')" class="spill-item-image"
+                                             src="@image" alt="@image" title="Click to remove.">
+                                    </div>
+
+                                    active = false;
+                                }
+                                else
+                                {
+                                    <div class="carousel-item">
+                                        <img value="@image" gameId="@Model.EditGame.Id" onclick="Delete(this, 'DeletePicture')" class="spill-item-image"
+                                             src="@image" alt="@image" title="Click to remove.">
+                                    </div>
+                                }
                             }
                         }
+                        
                     </div>
 
                     <!-- Left and right controls -->
@@ -227,58 +253,59 @@ else
 
             @if (Model.EditGame.Videos != null && Model.EditGame.Videos.Any())
             {
-                <!--Carousel Wrapper-->
-                <div id="videos-@Model.EditGame.Id" class="carousel slide carousel-fade" data-ride="carousel">
-                    <!--Indicators-->
-                    <ol class="carousel-indicators">
-                        @for (var i = 0; i < Model.EditGame.Videos.Count; i++)
-                        {
-                            if (Model.EditGame.Videos.First().Equals(Model.EditGame.Videos[i]))
+                <div id="videos-@Model.EditGame.Id" class="carousel slide" data-ride="carousel">
+
+                    <!-- Indicators -->
+                    <ul class="carousel-indicators">
+                        @{
+                            var active = true;
+                            for (var i = 0; i < Model.EditGame.Videos.Count; i++)
                             {
-                                <li data-target="#videos-@Model.EditGame.Id" data-slide-to="@i" class="active"></li>
-                            }
-                            else
-                            {
-                                <li data-target="#videos-@Model.EditGame.Id" data-slide-to="@i"></li>
+                                if (active)
+                                {
+                                    <li data-target="#videos-@Model.EditGame.Id" data-slide-to="@i" class="active"></li>
+                                    active = false;
+                                }
+                                else
+                                {
+                                    <li data-target="#videos-@Model.EditGame.Id" data-slide-to="@i"></li>
+                                }
                             }
                         }
-                    </ol>
-                    <!--/.Indicators-->
-                    <!--Slides-->
-                    <div class="carousel-inner" role="listbox">
-                        @foreach (var video in Model.EditGame.Videos)
-                        {
-                            if (Model.EditGame.Videos.First().Equals(video))
+                    </ul>
+
+                    <!-- The slideshow -->
+                    <div class="carousel-inner">
+                        @{
+                            active = true;
+                            foreach (var video in Model.EditGame.Videos)
                             {
-                                <center>
+                                if (active)
+                                {
                                     <div class="carousel-item active">
-                                        <iframe class="carousel-item-border" src="@video" width="650" height="450"></iframe>
+                                        <iframe class="responsive-iframe" src="@video"></iframe>
                                     </div>
-                                </center>
-                            }
-                            else
-                            {
-                                <center>
+
+                                    active = false;
+                                }
+                                else
+                                {
                                     <div class="carousel-item">
-                                        <iframe class="carousel-item-border" src="@video" width="650" height="450"></iframe>
+                                        <iframe class="responsive-iframe" src="@video"></iframe>
                                     </div>
-                                </center>
+                                }
                             }
                         }
                     </div>
-                    <!--/.Slides-->
-                    <!--Controls-->
-                    <a class="carousel-control-prev" href="#videos-@Model.EditGame.Id" role="button" data-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="sr-only">Previous</span>
+
+                    <!-- Left and right controls -->
+                    <a class="carousel-control-prev" href="#videos-@Model.EditGame.Id" data-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
                     </a>
-                    <a class="carousel-control-next" href="#videos-@Model.EditGame.Id" role="button" data-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="sr-only">Next</span>
+                    <a class="carousel-control-next" href="#videos-@Model.EditGame.Id" data-slide="next">
+                        <span class="carousel-control-next-icon"></span>
                     </a>
-                    <!--/.Controls-->
                 </div>
-                <!--Carousel Wrapper-->
             }
             else
             {
@@ -286,14 +313,75 @@ else
             }
 
             <div class="form-group">
-                <label asp-for="Input.Description"></label>
-                <textarea asp-for="Input.Description" class="form-control spill-input"></textarea>
-                <span asp-validation-for="Input.Description" class="text-danger"></span>
+                <label asp-for="Input.DownloadLink" class="h3"></label>
+                <input asp-for="Input.DownloadLink" class="form-control spill-input" />
             </div>
 
+            <div class="form-group">
+                <label asp-for="Input.Description"></label>
+                <textarea asp-for="Input.Description" class="form-control spill-input"></textarea>
+            </div>
+            <h4 class="spill-item-publisher">Approved: @Model.EditGame.Approved</h4>
             <h3 class="spill-item-publisher">Made by: <br /> @Model.EditGame.PublisherUserId</h3>
         </div>
         <button id="change-email-button" type="submit" asp-page-handler="EditGame" class="btn btn-primary">Edit Game</button>
     </form>
+
+    <form id="DeletePicture" method="post" asp-page-handler="DeletePicture" enctype="multipart/form-data" class="d-none">
+        <button id="delete-picture-button" type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    <form id="DeleteVideo" method="post" asp-page-handler="DeleteVideo" enctype="multipart/form-data" class="d-none">
+        <button id="delete-video-button" type="submit" class="btn btn-primary">Submit</button>
+    </form>
 </center>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+
+    <script type="text/javascript">
+        function Delete(deleteObject, deleteType) {
+            if (deleteObject === null || deleteObject === undefined ||
+                deleteType === null || deleteType === undefined) return;
+
+            const deleteForm = $(`#${deleteType}`);
+            if (deleteForm === undefined || deleteForm === null) return;
+
+            const url = deleteForm.attr("action");
+            const type = deleteForm.attr("method");
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').getAttribute("value");
+
+            if (token === undefined || token === null) return;
+
+            const value = deleteObject.getAttribute("value");
+            const gameId = deleteObject.getAttribute("gameId");
+            if (value === null ||
+                gameId === null ||
+                gameId === undefined ||
+                value === undefined) return;
+
+            const formData = new FormData();
+            formData.append("Value", value);
+            formData.append("GameId", gameId);
+
+            $.ajax({
+                url: url,
+                type: type,
+                headers: {
+                    "RequestVerificationToken": token
+                },
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                data: Object.fromEntries(formData),
+                success: function(response) {
+                    window.location = response;
+                },
+                failure: function(response) {
+                    window.location = response;
+                },
+                error: function(response) {
+                    window.location = response;
+                }
+            });
+        }
+    </script>
 }

@@ -243,10 +243,25 @@ html {
     height: auto;
 }
 
+.spill-item-image-delete:hover .spill-item-delete {
+    display: block;
+}
+
+.spill-item-delete {
+    display: none;
+}
+
 .access-denied-header {
     color: var(--red);
 }
 
 .delete-game-form {
     margin-top: 15px;
+}
+
+.responsive-iframe {
+    width: 100%;
+    height: auto;
+    border: none;
+    padding: 15px;
 }

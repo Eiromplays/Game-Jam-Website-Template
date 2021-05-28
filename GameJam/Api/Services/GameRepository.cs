@@ -63,6 +63,37 @@ namespace GameJam.Api.Services
             return await _dbContext.SaveChangesAsync() >= 1 ? GameResult.Success : GameResult.Failed;
         }
 
+        /// <summary>
+        /// Remove a image from a game.
+        /// </summary>
+
+        public async Task<GameResult> RemoveImageAsync(string gameId, string image)
+        {
+            var game = await GetGameAsync(gameId);
+            if(game == null) return GameResult.NotFound;
+
+            game.Images.Remove(image);
+
+            return await UpdateGameAsync(game);
+        }
+
+        /// <summary>
+        /// Remove a video from a game.
+        /// </summary>
+
+        public async Task<GameResult> RemoveVideoAsync(string gameId, string video)
+        {
+            var game = await GetGameAsync(gameId);
+            if (game == null) return GameResult.NotFound;
+
+            game.Videos.Remove(video);
+
+            return await UpdateGameAsync(game);
+        }
+
+        /// <summary>
+        /// Remove a game that exists using it's id and while verifying the userId
+        /// </summary>
         public async Task<GameResult> RemoveGameAsync(string gameId, string userId)
         {
             var gameToRemove = await GetGameAsync(gameId);
