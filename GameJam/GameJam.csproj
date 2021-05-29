@@ -24,8 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Api\Extensions\" />
-    <Folder Include="Api\Helpers\" />
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>

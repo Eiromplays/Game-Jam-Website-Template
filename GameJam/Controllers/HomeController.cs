@@ -20,12 +20,17 @@ namespace GameJam.Controllers
             return View();
         }
 
-        public IActionResult Om()
+        public IActionResult About()
         {
             return View();
         }
 
-        public IActionResult Spill()
+        public IActionResult ViewUser()
+        {
+            return View();
+        }
+
+        public IActionResult Games()
         {
             return View();
         }

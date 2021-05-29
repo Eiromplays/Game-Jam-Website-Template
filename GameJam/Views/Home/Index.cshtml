@@ -2,18 +2,22 @@
     ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4 header"><strong>Game Jam</strong></h1>
+<center>
+    <h1 class="display-4 header"><strong>Welcome to KTF Game Jam!</strong></h1>
+    <img src="~/Images/Banner.jpg" alt="KTF Banner" width="750" />
+    <h4>What is a Game Jam?</h4>
     <p class="information-text">
-        Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-        Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-        when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-        It has survived not only five centuries, but also the leap into electronic typesetting,
-        remaining essentially unchanged. It was popularised in the 1960s with the release of
-        Letraset sheets containing Lorem Ipsum passages,
-        and more recently with desktop publishing software like Aldus PageMaker including
-        versions of Lorem Ipsum.
+        En Game Jam er en konkurranse der deltakerne prøver å lage et videospill fra bunnen av. Avhengig av formatet,
+        kan deltakerne jobbe uavhengig eller i team. Konkurransens varighet varierer vanligvis fra 24 til 72 timer.
     </p>
-    <br/>
-    <a href="#" class="home-påmelding-btn btn">Meld deg på!</a>
-</div>
+    <h4>Theme: <strong>Not chosen.</strong></h4>
+
+    <h4>Rules:</h4>
+    <p class="information-text">
+        1. No inappropriate content like NSFW.<br />
+        2. Be nice to each other<br />
+        3. Have fun!
+    </p>
+    <br />
+    <a asp-area="Identity" asp-page="/Account/Manage/Index" class="home-påmelding-btn btn">Join the KTF Game Jam!</a>
+</center>

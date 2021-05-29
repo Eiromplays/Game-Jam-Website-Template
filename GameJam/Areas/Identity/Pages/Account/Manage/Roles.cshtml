@@ -1,18 +1,60 @@
 ﻿@page
 @model GameJam.Areas.Identity.Pages.Account.Manage.RolesModel
+@inject UserManager<GameJamUser> UserManager
 @{
     ViewData["Title"] = "Roles";
     ViewData["ActivePage"] = ManageNavPages.Roles;
 }
 
-@if (Model.Roles != null && Model.Roles.Any())
+<partial name="_StatusMessage" model="Model.StatusMessage" />
+
+@if (Model.Roles != null && Model.Roles.Any() && !Model.CreateRole)
 {
-    @foreach (var role in Model.Roles)
-    {
-        <h1>@role.Name</h1>
-    }
+    <div class="table-responsive">
+        <table class="table-dark table-sm">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Id</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Members</th>
+                    <th scope="col">Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var role in Model.Roles)
+                {
+                    <tr>
+                        <th scope="row">@role.Id</th>
+                        <td>@role.Name</td>
+                        <td>@string.Join(", ", await UserManager.GetUsersInRoleAsync(role.Name))</td>
+                        <td><a href="?deleteRoleId=@role.Id">Delete Role</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else if (Model.CreateRole)
+{
+    <center>
+        <div class="spill-item">
+            <form id="create-role-form" method="post">
+                <div asp-validation-summary="All" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="Input.Name"></label>
+                    <input asp-for="Input.Name" class="form-control spill-input" />
+                </div>
+                <button id="create-role-button" type="submit" asp-page-handler="CreateRole" class="btn btn-primary">Create Role</button>
+            </form>
+        </div>
+    </center>
 }
 else
 {
     <h1>Unable to load roles, no roles found.</h1>
+}
+
+@if (!Model.CreateRole)
+{
+    <a href="?createRole=true">Create new role</a>
 }

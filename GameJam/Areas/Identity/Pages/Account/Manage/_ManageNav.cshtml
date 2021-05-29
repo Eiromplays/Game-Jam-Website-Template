@@ -1,8 +1,10 @@
 ﻿@using Microsoft.Extensions.Options
 @using GameJam.Api.Models
+@using GameJam.Api.Interfaces
 @inject SignInManager<GameJamUser> SignInManager
 @inject UserManager<GameJamUser> UserManager
 @inject IOptions<DefaultRoleNames> RoleNames
+@inject IGameRepository GameRepository
 
 @{
     var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
@@ -23,12 +25,23 @@
     {
         <li id="external-logins" class="nav-item"><a id="external-login" class="nav-link @ManageNavPages.ExternalLoginsNavClass(ViewContext)" asp-page="./ExternalLogins">External logins</a></li>
     }
-    @if (isParticipant)
+    @if (isParticipant || (await GameRepository.GetUsersGameAsync(user?.Id)).Any() ||
+         ReferenceEquals(ViewData["ActivePage"], ManageNavPages.MyGames))
     {
         <li class="nav-item"><a class="nav-link @ManageNavPages.MyGamesNavClass(ViewContext)" id="upload-game" asp-page="./MyGames">My Games</a></li>
     }
+    @if (isParticipant)
+    {
+        <li class="nav-item"><a class="nav-link @ManageNavPages.JamNavClass(ViewContext)" id="jam" asp-page="./Jam">Leave Jam</a></li>
+    }
+    else
+    {
+        <li class="nav-item"><a class="nav-link @ManageNavPages.JamNavClass(ViewContext)" id="jam" asp-page="./Jam">Join Jam</a></li>
+    }
     @if (isAdmin)
     {
+        <li class="nav-item"><a class="nav-link @ManageNavPages.UploadedGamesNavClass(ViewContext)" id="uploaded-games" asp-page="./UploadedGames">Uploaded Games</a></li>
+        <li class="nav-item"><a class="nav-link @ManageNavPages.UsersNavClass(ViewContext)" id="users" asp-page="./Users">Users</a></li>
         <li class="nav-item"><a class="nav-link @ManageNavPages.RolesNavClass(ViewContext)" id="roles" asp-page="./Roles">Roles</a></li>
     }
     <li class="nav-item"><a class="nav-link @ManageNavPages.PersonalDataNavClass(ViewContext)" id="personal-data" asp-page="./PersonalData">Personal data</a></li>

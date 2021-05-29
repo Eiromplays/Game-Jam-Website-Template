@@ -1,0 +1,88 @@
+﻿@page
+@using Microsoft.Extensions.Options
+@using GameJam.Api.Models
+@model GameJam.Areas.Identity.Pages.Account.Manage.UsersModel
+@inject IOptions<DefaultRoleNames> DefaultRoleNames
+@inject UserManager<GameJamUser> UserManager
+@{
+    ViewData["Title"] = "Users";
+    ViewData["ActivePage"] = ManageNavPages.Users;
+}
+
+<partial name="_StatusMessage" model="Model.StatusMessage" />
+
+@if (Model.Users != null && Model.Users.Any() && Model.EditUser == null)
+{
+    <div class="table-responsive">
+        <table class="table-dark table-sm">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Id</th>
+                    <th scope="col">Username</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Admin</th>
+                    <th scope="col">Participant</th>
+                    <th scope="col">Roles</th>
+                    <th scope="col">Edit</th>
+                    <th scope="col">Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var user in Model.Users)
+            {
+                var isAdmin = await UserManager.IsInRoleAsync(user, DefaultRoleNames.Value.AdministratorRoleName);
+                var isParticipant = await UserManager.IsInRoleAsync(user, DefaultRoleNames.Value.ParticipantRoleName);
+                <tr>
+                    <th scope="row">@user.Id</th>
+                    <td>@user.UserName</td>
+                    <td>@user.Description</td>
+                    <td>@user.Email <br/>
+                        <span class="font-weight-bold">Email Confirmed: @user.EmailConfirmed</span>
+                    </td>
+                    <td>@isAdmin</td>
+                    <td>@isParticipant</td>
+                    <td>@string.Join(", ", await UserManager.GetRolesAsync(user))</td>
+                    <td><a href="?identifier=@user.Id">Edit User</a></td>
+                    <td><a href="?deleteUserId=@user.Id">Delete User</a></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}
+else if (Model.EditUser != null)
+{
+    <center>
+        <h1>Editing @Model.EditUser.UserName (@Model.EditUser.Id)</h1>
+        <form id="upload-game-form" method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="spill-item">
+                <div class="form-group d-none">
+                    <input asp-for="Input.UserId" class="form-control spill-input" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="Input.Description"></label>
+                    <textarea asp-for="Input.Description" class="form-control spill-input"></textarea>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Input.EmailConfirmed"></label>
+                    <input type="checkbox" asp-for="Input.EmailConfirmed" class="form-control spill-input" />
+                </div>
+                <div class="form-group">
+                    <label>Add Role</label>
+                    <select name="addrole" asp-items="Model.AddRoles"></select>
+                </div>
+                <div class="form-group">
+                    <label>Remove Role:</label>
+                    <select name="removerole" asp-items="Model.RemoveRoles"></select>
+                </div>
+            </div>
+            <button id="edit-user-button" type="submit" asp-page-handler="EditUser" class="btn btn-primary">Edit User</button>
+        </form>
+    </center>
+}
+else
+{
+    <h1>Unable to load users, no users found.</h1>
+}

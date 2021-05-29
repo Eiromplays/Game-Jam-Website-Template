@@ -37,11 +37,20 @@ namespace GameJam.Migrations
                     b.Property<List<string>>("Images")
                         .HasColumnType("text[]");
 
+                    b.Property<string>("LastEdited")
+                        .HasColumnType("text");
+
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
                     b.Property<string>("PublisherUserId")
                         .HasColumnType("text");
+
+                    b.Property<List<string>>("RatedBy")
+                        .HasColumnType("text[]");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("integer");
 
                     b.Property<List<string>>("Videos")
                         .HasColumnType("text[]");
@@ -61,6 +70,12 @@ namespace GameJam.Migrations
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CreatedDate")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
                         .HasColumnType("text");
 
                     b.Property<string>("Email")

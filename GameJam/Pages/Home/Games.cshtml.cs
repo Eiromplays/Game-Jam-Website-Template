@@ -1,29 +1,36 @@
-using System;
 using GameJam.Api.Interfaces;
 using GameJam.Api.Models;
 using GameJam.Areas.Identity.Data;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 
 namespace GameJam.Pages.Home
 {
-    public class SpillModel : PageModel
+    public class GamesModel : PageModel
     {
         private readonly IGameRepository _gameRepository;
         private readonly UserManager<GameJamUser> _userManager;
+        private readonly DefaultRoleNames _defaultRoleNames;
 
-        public SpillModel(IGameRepository gameRepository, 
-            UserManager<GameJamUser> userManager)
+        public GamesModel(IGameRepository gameRepository, 
+            UserManager<GameJamUser> userManager, 
+            IOptions<DefaultRoleNames> defaultRoleNames)
         {
             _gameRepository = gameRepository;
             _userManager = userManager;
+            _defaultRoleNames = defaultRoleNames.Value;
         }
 
-        public List<Game> Games = new List<Game>();
+        public List<Game> Games { get; set; } = new List<Game>();
+
+        public List<string> GamesThatCanBeEdited { get; set; } = new List<string>();
+
+        public List<string> GamesThatCanBeEditedAdmin { get; set; } = new List<string>();
 
         /// <summary>
         /// Loads games depending on if the user tries to query or not.
@@ -40,6 +47,9 @@ namespace GameJam.Pages.Home
             if (string.IsNullOrEmpty(query))
             {
                 Games = await _gameRepository.GetApprovedGamesAsync();
+
+                await GetGamesUserCanEditAsync(user);
+
                 await GetPublisherInformationAsync();
 
                 return Page();
@@ -49,6 +59,8 @@ namespace GameJam.Pages.Home
             if (selectedGame != null)
             {
                 Games.Add(selectedGame);
+
+                await GetGamesUserCanEditAsync(user);
 
                 await GetPublisherInformationAsync();
 
@@ -60,6 +72,8 @@ namespace GameJam.Pages.Home
 
             // Removes duplicate objects if any.
             Games = Games.Distinct().ToList();
+
+            await GetGamesUserCanEditAsync(user);
 
             await GetPublisherInformationAsync();
 
@@ -74,11 +88,20 @@ namespace GameJam.Pages.Home
 
                 if (publisher == null)
                 {
-                    game.PublisherUserId = $"Unable to load publisher information.";
+                    game.PublisherUserId = $"Unable to load your username.";
                     continue;
                 }
 
                 game.PublisherUserId = publisher.UserName;
+            }
+        }
+
+        public async Task GetGamesUserCanEditAsync(GameJamUser user)
+        {
+            GamesThatCanBeEdited.AddRange(Games.Where(g => g.PublisherUserId == user.Id).Select(g => g.Id).ToList());
+            if (await _userManager.IsInRoleAsync(user, _defaultRoleNames.AdministratorRoleName))
+            {
+                GamesThatCanBeEditedAdmin = Games.Select(g => g.Id).ToList();
             }
         }
     }

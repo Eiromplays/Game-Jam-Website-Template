@@ -16,7 +16,7 @@ namespace GameJam.Api.Authorize
             Task.Run(async () => await CheckIfAdminAsync(context));
         }
 
-        // Check if the user is part of the admin role if.
+        // Check if the user is part of the admin role
         // If the user is not part of that role it will redirect them to the Access Denied page.
         private async Task CheckIfAdminAsync(AuthorizationFilterContext context)
         {
@@ -33,8 +33,8 @@ namespace GameJam.Api.Authorize
                 return;
             }
 
-            var user = await userManager.GetUserAsync(context.HttpContext.User).ConfigureAwait(false);
-            var isAdmin = await userManager.IsInRoleAsync(user, defaultRoleNames?.AdministratorRoleName).ConfigureAwait(false);
+            var user = await userManager.GetUserAsync(context.HttpContext.User);
+            var isAdmin = await userManager.IsInRoleAsync(user, defaultRoleNames?.AdministratorRoleName);
             if (!isAdmin)
             {
                 context.HttpContext.Response.Redirect("/Home/AccessDenied");

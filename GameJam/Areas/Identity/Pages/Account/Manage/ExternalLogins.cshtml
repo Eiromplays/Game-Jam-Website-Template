@@ -9,8 +9,9 @@
 @if (Model.CurrentLogins?.Count > 0)
 {
     <h4>Registered Logins</h4>
-    <table class="table">
-        <tbody>
+    <div class="table-responsive">
+        <table class="table-dark table-sm">
+            <tbody>
             @foreach (var login in Model.CurrentLogins)
             {
                 <tr>
@@ -33,8 +34,9 @@
                     </td>
                 </tr>
             }
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
 }
 @if (Model.OtherLogins?.Count > 0)
 {

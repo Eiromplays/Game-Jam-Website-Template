@@ -1,0 +1,44 @@
+﻿@page
+@model GameJam.Pages.Home.ViewUserModel
+@{
+    ViewData["Title"] = $"View User {Model.Query}";
+    Layout = "_Layout";
+}
+
+@if (Model.Users != null && Model.Users.Any())
+{
+    <div id="users">
+        <center>
+            <div class="container">
+                <div class="row">
+                    @foreach (var user in Model.Users)
+                    {
+                        var description = user.Description;
+                        if (string.IsNullOrEmpty(description))
+                        {
+                            description = $"Description not set.";
+                        }
+
+                        <div class="col-sm-3 col-md-4">
+                            <div class="users-item">
+                                <h2 class="users-item-name">@user.UserName</h2>
+                                <img class="users-item-image rounded-circle" src="@user.ProfilePicture" alt="@user.UserName's profile picture"/>
+                                @if (Model.StaffIds.Contains(user.Id))
+                                {
+                                    <h5>@user.UserName is part of the staff team.</h5>
+                                }
+                                <h5>Joined at: <bold>@user.CreatedDate</bold></h5>
+                                <h3 class="users-item-description">Description:</h3>
+                                <p class="users-item-description">@description</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </center>
+    </div>
+}
+else
+{
+    <h1 class="text-center">User(s) not found.</h1>
+}

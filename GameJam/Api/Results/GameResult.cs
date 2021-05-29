@@ -9,6 +9,12 @@
         public bool Succeeded { get; protected set; }
 
         /// <summary>
+        /// Returns a flag indication whether it failed or not.
+        /// </summary>
+        /// <value>True if it failed, otherwise false.</value>
+        public bool Failed { get; protected set; }
+
+        /// <summary>
         /// Returns a flag indicating whether the game was found or not.
         /// </summary>
         /// <value>True if the game was not found, otherwise false.</value>
@@ -27,9 +33,9 @@
         public bool IsMaxSubmissionsNotSet { get; protected set; }
 
         /// <returns>A <see cref="GameResult"/> which represents that something went wrong.</returns>
-        public static GameResult Failed { get; } = new GameResult();
+        public static GameResult Failure { get; } = new GameResult { Failed = true };
 
-        /// <returns>A <see cref="GameResult"/> which represents that something succeeded.</returns>
+    /// <returns>A <see cref="GameResult"/> which represents that something succeeded.</returns>
         public static GameResult Success { get; } = new GameResult { Succeeded = true };
 
         /// <returns>A <see cref="GameResult"/> which represents that it was unable to find the game.</returns>

@@ -1,18 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Security.Claims;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Threading.Tasks;
-using AspNet.Security.OAuth.Discord;
+﻿using AspNet.Security.OAuth.Discord;
 using GameJam.Api.Models;
-using Microsoft.AspNetCore.Authorization;
 using GameJam.Areas.Identity.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -21,6 +10,17 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Security.Claims;
+using System.Text;
+using System.Text.Encodings.Web;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 
 namespace GameJam.Areas.Identity.Pages.Account
 {
@@ -32,19 +32,22 @@ namespace GameJam.Areas.Identity.Pages.Account
         private readonly IEmailSender _emailSender;
         private readonly ILogger<ExternalLoginModel> _logger;
         private readonly IConfiguration _configuration;
+        private readonly DefaultRoleNames _defaultRoleNames;
 
         public ExternalLoginModel(
             SignInManager<GameJamUser> signInManager,
             UserManager<GameJamUser> userManager,
             ILogger<ExternalLoginModel> logger,
             IEmailSender emailSender, 
-            IConfiguration configuration)
+            IConfiguration configuration, 
+            IOptions<DefaultRoleNames> defaultRoleNames)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _logger = logger;
             _emailSender = emailSender;
             _configuration = configuration;
+            _defaultRoleNames = defaultRoleNames.Value;
         }
 
         [BindProperty]
@@ -188,6 +191,13 @@ namespace GameJam.Areas.Identity.Pages.Account
 
                         await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                             $"Please confirm your account with the name {user.UserName} by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+
+                        var adminUsername = _configuration["AdminUsername"];
+                        if (user.UserName.Equals(adminUsername, StringComparison.OrdinalIgnoreCase))
+                        {
+                            await _userManager.AddToRoleAsync(user, _defaultRoleNames.AdministratorRoleName);
+                        }
 
                         // If account confirmation is required, we need to show the link if we don't have a real email sender
                         if (_userManager.Options.SignIn.RequireConfirmedAccount)

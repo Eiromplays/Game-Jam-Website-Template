@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System;
+using Microsoft.AspNetCore.Identity;
 
 namespace GameJam.Areas.Identity.Data
 {
@@ -6,5 +7,9 @@ namespace GameJam.Areas.Identity.Data
     public class GameJamUser : IdentityUser
     {
         public string ProfilePicture { get; set; }
+
+        public string Description { get; set; }
+
+        public string CreatedDate { get; set; } = DateTime.Now.ToString();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -27,6 +28,9 @@ namespace GameJam.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
+                    ProfilePicture = table.Column<string>(type: "text", nullable: true),
+                    Description = table.Column<string>(type: "text", nullable: true),
+                    CreatedDate = table.Column<string>(type: "text", nullable: true),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -45,6 +49,27 @@ namespace GameJam.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Games",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: true),
+                    Description = table.Column<string>(type: "text", nullable: true),
+                    PublisherUserId = table.Column<string>(type: "text", nullable: true),
+                    DownloadLink = table.Column<string>(type: "text", nullable: true),
+                    Images = table.Column<List<string>>(type: "text[]", nullable: true),
+                    Videos = table.Column<List<string>>(type: "text[]", nullable: true),
+                    Approved = table.Column<bool>(type: "boolean", nullable: false),
+                    LastEdited = table.Column<string>(type: "text", nullable: true),
+                    Rating = table.Column<int>(type: "integer", nullable: false),
+                    RatedBy = table.Column<List<string>>(type: "text[]", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Games", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -207,6 +232,9 @@ namespace GameJam.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "Games");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

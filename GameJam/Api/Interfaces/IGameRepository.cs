@@ -53,5 +53,10 @@ namespace GameJam.Api.Interfaces
         /// Remove a video from a game.
         /// </summary>
         Task<GameJam.Api.Results.GameResult> RemoveVideoAsync(string gameId, string video);
+
+        /// <summary>
+        /// Create/Add a new game.
+        /// </summary>
+        Task<GameJam.Api.Results.GameResult> AddGameAsync(Game game);
     }
 }

@@ -7,7 +7,7 @@
 
 <partial name="_StatusMessage" model="Model.StatusMessage" />
 
-@if (Model.Games != null && Model.Games.Any() && Model.EditGame == null)
+@if (Model.Games != null && Model.Games.Any() && Model.EditGame == null && !Model.UploadNewGame)
 {
     <div class="text-center">
         <h1 class="display-4 header"><strong>Your Games:</strong></h1>
@@ -36,7 +36,8 @@
                                         </div>
                                     </div>
                                 }
-                                <a class="h1 spill-item-title" href="game/@game.Name">@game.Name</a>
+                                <a class="h1 spill-item-title" asp-action="Games" asp-controller="Home" asp-route-query="@game.Id">@game.Name</a>
+                                <h4>Last modified: <br /><span class="h5">@game.LastEdited</span></h4>
                                 @if (game.Images != null && game.Images.Any())
                                 {
                                     <div id="images-@game.Id" class="carousel slide" data-ride="carousel">
@@ -158,8 +159,12 @@
                                     <h5>No Videos uploaded.</h5>
                                 }
 
-                                <h3 class="spill-item-description">Description</h3>
-                                <h3 class="spill-item-publisher">Made by: <br /> @game.PublisherUserId</h3>
+                                <h3 class="spill-item-description">Description:</h3>
+                                <p class="spill-item-description">@game.Description</p>
+                                <h3 class="spill-item-publisher">
+                                    Made by: <br />
+                                    <a asp-action="ViewUser" asp-controller="Home" asp-route-query="@game.PublisherUserId">@game.PublisherUserId</a>
+                                </h3>
                             </div>
                         </div>
                     }
@@ -168,11 +173,7 @@
         </center>
     </div>
 }
-else if (Model.EditGame == null)
-{
-    <h1>You don't have any uploaded games do you want to upload one? <a href="#">Upload Game</a></h1>
-}
-else
+else if(!Model.UploadNewGame && Model.EditGame != null)
 {
 <center>
     <form id="edit-game-form" method="post">
@@ -234,7 +235,7 @@ else
                                 }
                             }
                         }
-                        
+
                     </div>
 
                     <!-- Left and right controls -->
@@ -250,6 +251,11 @@ else
             {
                 <h5>No Images uploaded.</h5>
             }
+
+            <div class="form-group">
+                <label asp-for="Input.Images"></label>
+                <textarea asp-for="Input.Images" class="form-control spill-input"></textarea>
+            </div>
 
             @if (Model.EditGame.Videos != null && Model.EditGame.Videos.Any())
             {
@@ -282,7 +288,8 @@ else
                             {
                                 if (active)
                                 {
-                                    <div class="carousel-item active">
+                                    <div value="@video" gameId="@Model.EditGame.Id" onmouseover="ShowDelete(this)"
+                                         class="carousel-item active">
                                         <iframe class="responsive-iframe" src="@video"></iframe>
                                     </div>
 
@@ -290,7 +297,7 @@ else
                                 }
                                 else
                                 {
-                                    <div class="carousel-item">
+                                    <div value="@video" gameId="@Model.EditGame.Id" onmouseover="ShowDelete(this)" class="carousel-item">
                                         <iframe class="responsive-iframe" src="@video"></iframe>
                                     </div>
                                 }
@@ -313,6 +320,11 @@ else
             }
 
             <div class="form-group">
+                <label asp-for="Input.Videos"></label>
+                <textarea asp-for="Input.Videos" class="form-control spill-input"></textarea>
+            </div>
+
+            <div class="form-group">
                 <label asp-for="Input.DownloadLink" class="h3"></label>
                 <input asp-for="Input.DownloadLink" class="form-control spill-input" />
             </div>
@@ -322,9 +334,12 @@ else
                 <textarea asp-for="Input.Description" class="form-control spill-input"></textarea>
             </div>
             <h4 class="spill-item-publisher">Approved: @Model.EditGame.Approved</h4>
-            <h3 class="spill-item-publisher">Made by: <br /> @Model.EditGame.PublisherUserId</h3>
+            <h4>Last modified: <br /><span class="h5">@Model.EditGame.LastEdited</span></h4>
+            <h3 class="spill-item-publisher">Made by: <br /> 
+                <a asp-action="ViewUser" asp-controller="Home" asp-route-query="@Model.EditGame.PublisherUserId">@Model.EditGame.PublisherUserId</a>
+            </h3>
         </div>
-        <button id="change-email-button" type="submit" asp-page-handler="EditGame" class="btn btn-primary">Edit Game</button>
+        <button id="edit-game-button" type="submit" asp-page-handler="EditGame" class="btn btn-primary">Edit Game</button>
     </form>
 
     <form id="DeletePicture" method="post" asp-page-handler="DeletePicture" enctype="multipart/form-data" class="d-none">
@@ -335,53 +350,49 @@ else
     </form>
 </center>
 }
+else
+{
+    <center>
+        <h1>Upload Game:</h1>
+        <form id="upload-game-form" method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="spill-item">
+                <div class="form-group">
+                    <label asp-for="Input.Name" class="h3">Game Name:</label>
+                    <input asp-for="Input.Name" class="form-control spill-input"/>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Input.Images"></label>
+                    <textarea asp-for="Input.Images" class="form-control spill-input"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Input.Videos"></label>
+                    <textarea asp-for="Input.Videos" class="form-control spill-input"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Input.DownloadLink" class="h3"></label>
+                    <input asp-for="Input.DownloadLink" class="form-control spill-input"/>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Input.Description"></label>
+                    <textarea asp-for="Input.Description" class="form-control spill-input"></textarea>
+                </div>
+            </div>
+            <button id="change-email-button" type="submit" asp-page-handler="UploadGame" class="btn btn-primary">Upload Game</button>
+        </form>
+    </center>
+}
+@if (!Model.UploadNewGame)
+{
+    <center class=" mt-5">
+        <a class="h2" href="?uploadGame=true">Upload New Game</a>
+    </center>
+}
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial"/>
-
-    <script type="text/javascript">
-        function Delete(deleteObject, deleteType) {
-            if (deleteObject === null || deleteObject === undefined ||
-                deleteType === null || deleteType === undefined) return;
-
-            const deleteForm = $(`#${deleteType}`);
-            if (deleteForm === undefined || deleteForm === null) return;
-
-            const url = deleteForm.attr("action");
-            const type = deleteForm.attr("method");
-            const token = document.querySelector('input[name="__RequestVerificationToken"]').getAttribute("value");
-
-            if (token === undefined || token === null) return;
-
-            const value = deleteObject.getAttribute("value");
-            const gameId = deleteObject.getAttribute("gameId");
-            if (value === null ||
-                gameId === null ||
-                gameId === undefined ||
-                value === undefined) return;
-
-            const formData = new FormData();
-            formData.append("Value", value);
-            formData.append("GameId", gameId);
-
-            $.ajax({
-                url: url,
-                type: type,
-                headers: {
-                    "RequestVerificationToken": token
-                },
-                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-                data: Object.fromEntries(formData),
-                success: function(response) {
-                    window.location = response;
-                },
-                failure: function(response) {
-                    window.location = response;
-                },
-                error: function(response) {
-                    window.location = response;
-                }
-            });
-        }
-    </script>
 }

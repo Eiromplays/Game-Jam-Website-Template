@@ -19,14 +19,27 @@ namespace GameJam.Areas.Identity.Pages.Account.Manage
 
         public static string Roles => "Roles";
 
+        public static string Users => "Users";
+
+        public static string UploadedGames => "UploadedGames";
+
         public static string MyGames => "MyGames";
+
+        public static string Jam => "Jam";
 
         public static string IndexNavClass(ViewContext viewContext) => PageNavClass(viewContext, Index);
 
         public static string EmailNavClass(ViewContext viewContext) => PageNavClass(viewContext, Email);
 
         public static string RolesNavClass(ViewContext viewContext) => PageNavClass(viewContext, Roles);
+
+        public static string UsersNavClass(ViewContext viewContext) => PageNavClass(viewContext, Users);
+
+        public static string UploadedGamesNavClass(ViewContext viewContext) => PageNavClass(viewContext, UploadedGames);
+
         public static string MyGamesNavClass(ViewContext viewContext) => PageNavClass(viewContext, MyGames);
+
+        public static string JamNavClass(ViewContext viewContext) => PageNavClass(viewContext, Jam);
 
         public static string DownloadPersonalDataNavClass(ViewContext viewContext) => PageNavClass(viewContext, DownloadPersonalData);
 

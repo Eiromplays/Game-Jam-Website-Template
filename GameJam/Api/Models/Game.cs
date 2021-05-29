@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace GameJam.Api.Models
 {
@@ -103,6 +105,21 @@ namespace GameJam.Api.Models
         /// Gets or sets the approved state for this game.
         /// </summary>
         public bool Approved { get; set; }
+
+        /// <summary>
+        /// Get or set the Last Edited date for this game.
+        /// </summary>
+        public string LastEdited { get; set; } = DateTime.Now.ToString();
+
+        /// <summary>
+        /// Get or set the rating for this game.
+        /// </summary>
+        public int Rating { get; set; }
+
+        /// <summary>
+        /// Get or set the people that have rated this game.
+        /// </summary>
+        public List<string> RatedBy { get; set; } = new List<string>();
 
         /// <summary>
         /// Returns the name for this game.

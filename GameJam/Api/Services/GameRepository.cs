@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GameJam.Api.Extensions;
 using GameJam.Api.Interfaces;
 using GameJam.Api.Models;
 using GameJam.Api.Results;
@@ -30,22 +31,56 @@ namespace GameJam.Api.Services
             var maxSubmissions = _configuration.GetValue<int>("MaxSubmissionsPerUser");
             if (maxSubmissions <= 0) return GameResult.MaxSubmissionsNotSet;
 
-            if((await GetUsersGameAsync(game.PublisherUserId)).Count > maxSubmissions)
+            if((await GetUsersGameAsync(game.PublisherUserId)).Count >= maxSubmissions)
                 return GameResult.MaxSubmissions;
+
+            foreach (var video in game.Videos.ToList())
+            {
+                game.Videos.Remove(video);
+                game.Videos.Add(VideoEmbedExtension.UrlToEmbedCode(video));
+            }
+
+            game.Videos ??= new List<string>();
+            game.Images ??= new List<string>();
 
             await _dbContext.Games.AddAsync(game);
 
-            return await _dbContext.SaveChangesAsync() >= 1 ? GameResult.Success : GameResult.Failed;
+            return await _dbContext.SaveChangesAsync() >= 1 ? GameResult.Success : GameResult.Failure;
         }
+
+        /// <summary>
+        /// Create/Add a new rating to a game.
+        /// </summary>
+        public async Task<GameResult> AddRatingAsync(string gameId, string userId)
+        {
+            var game = await GetGameAsync(gameId);
+            if(game == null) return GameResult.NotFound;
+            
+
+            return await _dbContext.SaveChangesAsync() >= 1 ? GameResult.Success : GameResult.Failure;
+        }
+
+
         /// <summary>
         /// Updates a preexisting game
         /// </summary>
 
         public async Task<GameResult> UpdateGameAsync(Game game)
         {
+            foreach (var video in game.Videos.ToList())
+            {
+                game.Videos.Remove(video);
+                game.Videos.Add(VideoEmbedExtension.UrlToEmbedCode(video));
+            }
+
+            game.Videos ??= new List<string>();
+            game.Images ??= new List<string>();
+
+            game.LastEdited = DateTime.Now.ToString();
+
             _dbContext.Games.Update(game);
 
-            return await _dbContext.SaveChangesAsync() >= 1 ? GameResult.Success : GameResult.Failed;
+            return await _dbContext.SaveChangesAsync() >= 1 ? GameResult.Success : GameResult.Failure;
         }
 
         /// <summary>
@@ -60,7 +95,7 @@ namespace GameJam.Api.Services
 
             _dbContext.Games.Remove(gameToRemove);
 
-            return await _dbContext.SaveChangesAsync() >= 1 ? GameResult.Success : GameResult.Failed;
+            return await _dbContext.SaveChangesAsync() >= 1 ? GameResult.Success : GameResult.Failure;
         }
 
         /// <summary>
@@ -100,11 +135,11 @@ namespace GameJam.Api.Services
 
             if (gameToRemove == null) return GameResult.NotFound;
             if(!gameToRemove.PublisherUserId.Equals(userId, StringComparison.OrdinalIgnoreCase))
-                return GameResult.Failed;
+                return GameResult.Failure;
 
             _dbContext.Games.Remove(gameToRemove);
 
-            return await _dbContext.SaveChangesAsync() >= 1 ? GameResult.Success : GameResult.Failed;
+            return await _dbContext.SaveChangesAsync() >= 1 ? GameResult.Success : GameResult.Failure;
         }
 
         /// <summary>

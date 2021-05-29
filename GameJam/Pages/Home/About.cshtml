@@ -1,12 +1,12 @@
 ﻿@page
-@model GameJam.Pages.Home.OmModel
+@model GameJam.Pages.Home.AboutModel
 @{
-    ViewData["Title"] = "Om";
+    ViewData["Title"] = "About";
     Layout = "_Layout";
 }
 
 <div class="text-center">
-    <h1 class="display-4 header"><strong>Om:</strong></h1>
+    <h1 class="display-4 header"><strong>About:</strong></h1>
     <p class="information-text">
         Lorem Ipsum is simply dummy text of the printing and typesetting industry.
         Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
@@ -23,13 +23,18 @@
     <center>
         <div class="container">
             <div class="row">
-                @foreach (var user in Model.Users)
+                @foreach (var user in Model.StaffUsers)
                 {
+                    var description = user.Description;
+                    if (string.IsNullOrEmpty(description))
+                    {
+                        description = $"Description not set.";
+                    }
                     <div class="col-sm">
                         <div class="om-team-item">
                             <img class="om-team-item-image rounded-circle" src="@user.ProfilePicture" alt="@user.UserName's profile picture" />
-                            <h4>Developer</h4>
-                            <a class="h3 om-team-item-title" href="user/@user.UserName">@user.UserName</a>
+                            <h4>@description</h4>
+                            <a class="h3 om-team-item-title" asp-action="ViewUser" asp-controller="Home" asp-route-query="@user.Id">@user.UserName</a>
                         </div>
                     </div>
                 }

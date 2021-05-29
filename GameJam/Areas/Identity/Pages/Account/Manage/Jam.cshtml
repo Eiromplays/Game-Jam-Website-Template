@@ -1,0 +1,15 @@
+﻿@page
+@model GameJam.Areas.Identity.Pages.Account.Manage.JamModel
+@{
+    if (Model.Participant)
+    {
+        ViewData["Title"] = "Leave Jam";
+    }
+    else
+    {
+        ViewData["Title"] = "Join Jam";
+    }
+    ViewData["ActivePage"] = ManageNavPages.Jam;
+}
+
+<partial name="_StatusMessage" model="Model.StatusMessage" />

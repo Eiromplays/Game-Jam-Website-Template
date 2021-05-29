@@ -1,0 +1,196 @@
+﻿@page
+@model GameJam.Pages.Home.GamesModel
+@{
+    ViewData["Title"] = "Games";
+    Layout = "_Layout";
+}
+
+
+@if (Model.Games != null && Model.Games.Any())
+{
+    <div class="text-center">
+        <h1 class="display-4 header"><strong>Games:</strong></h1>
+    </div>
+
+    <div id="spill">
+        <center>
+            <div class="container">
+                <div class="row">
+                    @foreach (var game in Model.Games)
+                    {
+                        <div class="col-sm-3 col-md-4">
+                            <div class="spill-item">
+                                @if (Model.GamesThatCanBeEdited.Contains(game.Id))
+                                {
+                                    <div class="delete-game-form">
+                                        <div class="container">
+                                            <div class="row justify-content-center">
+                                                <div class="col-sm-1">
+                                                    <a href="/Identity/Account/Manage/MyGames?deleteGameId=@game.Id"><i class="fas fa-trash"></i></a>
+                                                </div>
+                                                <div class="col-sm-1">
+                                                    <a href="/Identity/Account/Manage/MyGames?editGameId=@game.Id"><i class="fas fa-edit"></i></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                else if (Model.GamesThatCanBeEditedAdmin.Contains(game.Id))
+                                {
+                                    <div class="delete-game-form">
+                                        <div class="container">
+                                            <div class="row justify-content-center">
+                                                <div class="col-sm-1">
+                                                    <a href="/Identity/Account/Manage/UploadedGames?deleteGameId=@game.Id"><i class="fas fa-trash"></i></a>
+                                                </div>
+                                                <div class="col-sm-1">
+                                                    <a href="/Identity/Account/Manage/UploadedGames?editGameId=@game.Id"><i class="fas fa-edit"></i></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                <a class="h1 spill-item-title" href="?query=@game.Id">@game.Name</a>
+                                <h4>Last modified: <br /><span class="h5">@game.LastEdited</span></h4>
+                                @if (game.Images != null && game.Images.Any())
+                                {
+                                    <div id="images-@game.Id" class="carousel slide" data-ride="carousel">
+
+                                        <!-- Indicators -->
+                                        <ul class="carousel-indicators">
+                                            @{
+                                                var active = true;
+                                                for (var i = 0; i < game.Images.Count; i++)
+                                                {
+                                                    if (active)
+                                                    {
+                                                        <li data-target="#images-@game.Id" data-slide-to="@i" class="active"></li>
+                                                        active = false;
+                                                    }
+                                                    else
+                                                    {
+                                                        <li data-target="#images-@game.Id" data-slide-to="@i"></li>
+                                                    }
+                                                }
+                                            }
+                                        </ul>
+
+                                        <!-- The slideshow -->
+                                        <div class="carousel-inner">
+                                            @{
+                                                active = true;
+                                                foreach (var image in game.Images)
+                                                {
+                                                    if (active)
+                                                    {
+                                                        <div class="carousel-item active">
+                                                            <img class="spill-item-image" src="@image" alt="@image">
+                                                        </div>
+                                                        active = false;
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="carousel-item">
+                                                            <img class="spill-item-image" src="@image" alt="@image">
+                                                        </div>
+                                                    }
+                                                }
+                                            }
+                                        </div>
+
+                                        <!-- Left and right controls -->
+                                        <a class="carousel-control-prev" href="#images-@game.Id" data-slide="prev">
+                                            <span class="carousel-control-prev-icon"></span>
+                                        </a>
+                                        <a class="carousel-control-next" href="#images-@game.Id" data-slide="next">
+                                            <span class="carousel-control-next-icon"></span>
+                                        </a>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <h5>No Images uploaded.</h5>
+                                }
+
+                                @if (game.Videos != null && game.Videos.Any())
+                                {
+                                    <div id="videos-@game.Id" class="carousel slide" data-ride="carousel">
+
+                                        <!-- Indicators -->
+                                        <ul class="carousel-indicators">
+                                            @{
+                                                var active = true;
+                                                for (var i = 0; i < game.Videos.Count; i++)
+                                                {
+                                                    if (active)
+                                                    {
+                                                        <li data-target="#videos-@game.Id" data-slide-to="@i" class="active"></li>
+                                                        active = false;
+                                                    }
+                                                    else
+                                                    {
+                                                        <li data-target="#videos-@game.Id" data-slide-to="@i"></li>
+                                                    }
+                                                }
+                                            }
+                                        </ul>
+
+                                        <!-- The slideshow -->
+                                        <div class="carousel-inner">
+                                            @{
+                                                active = true;
+                                                foreach (var video in game.Videos)
+                                                {
+                                                    if (active)
+                                                    {
+                                                        <div class="carousel-item active">
+                                                            <iframe class="responsive-iframe" src="@video"></iframe>
+                                                        </div>
+
+                                                        active = false;
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="carousel-item">
+                                                            <iframe class="responsive-iframe" src="@video"></iframe>
+                                                        </div>
+                                                    }
+                                                }
+                                            }
+                                        </div>
+
+                                        <!-- Left and right controls -->
+                                        <a class="carousel-control-prev" href="#videos-@game.Id" data-slide="prev">
+                                            <span class="carousel-control-prev-icon"></span>
+                                        </a>
+                                        <a class="carousel-control-next" href="#videos-@game.Id" data-slide="next">
+                                            <span class="carousel-control-next-icon"></span>
+                                        </a>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <h5>No Videos uploaded.</h5>
+                                }
+
+                                <h3 class="spill-item-description">Description:</h3>
+                                <p class="spill-item-description">@game.Description</p>
+                        
+                                <h3 class="spill-item-publisher">
+                                    Made by: <br />
+                                    <a asp-action="ViewUser" asp-controller="Home" asp-route-query="@game.PublisherUserId">@game.PublisherUserId</a>
+                                </h3>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </center>
+    </div>
+}
+else
+{
+    <div class="text-center">
+        <h1 class="display-4 header"><strong>Failed to load games. (No games found)</strong></h1>
+    </div>
+}
