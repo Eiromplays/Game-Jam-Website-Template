@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using GameJam.Api.Interfaces;
 using GameJam.Api.Models;
@@ -45,7 +46,8 @@ namespace GameJam
             services.AddSingleton<IEmailSender, EmailSender>();
             services.AddScoped<IGameRepository, GameRepository>();
 
-            services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(@"\temp-keys\"))
+            Console.WriteLine(Directory.GetCurrentDirectory());
+            services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), "temp-keys")))
                 .UseCryptographicAlgorithms(new AuthenticatedEncryptorConfiguration
                 {
                     EncryptionAlgorithm = EncryptionAlgorithm.AES_256_CBC,
