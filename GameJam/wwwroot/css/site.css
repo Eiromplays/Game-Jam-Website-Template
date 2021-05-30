@@ -40,9 +40,9 @@
 body {
     /* Margin bottom by footer height */
     margin-bottom: 60px;
-
     color: var(--secondary);
     background-color: var(--background);
+    font-family: 'Noto Sans', sans-serif;
 }
 
 a {
