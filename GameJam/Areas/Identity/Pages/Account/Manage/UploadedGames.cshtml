@@ -1,5 +1,7 @@
 ﻿@page
+@using GameJam.Api.Interfaces
 @model GameJam.Areas.Identity.Pages.Account.Manage.UploadedGamesModel
+@inject IGameRepository GameRepository
 @{
     ViewData["Title"] = "Uploaded Games";
     ViewData["ActivePage"] = ManageNavPages.UploadedGames;
@@ -34,8 +36,8 @@
                                     </div>
                                 </div>
                                 <a class="h1 spill-item-title" asp-action="Games" asp-controller="Home" asp-route-query="@game.Id">@game.Name</a>
-                                <h4>Last modified: <br/><span class="h5">@game.LastEdited</span></h4>
-                                <br/>
+                                <h4>Last modified: <br /><span class="h5">@game.LastEdited</span></h4>
+                                <br />
                                 @if (game.Images != null && game.Images.Any())
                                 {
                                     <div id="images-@game.Id" class="carousel slide" data-ride="carousel">
@@ -159,7 +161,8 @@
 
                                 <h3 class="spill-item-description">Description:</h3>
                                 <p class="spill-item-description">@game.Description</p>
-                                <h3 class="spill-item-publisher">Made by: <br /> 
+                                <h3 class="spill-item-publisher">
+                                    Made by: <br />
                                     <a asp-action="ViewUser" asp-controller="Home" asp-route-query="@game.PublisherUserId">@game.PublisherUserId</a>
                                 </h3>
                             </div>
@@ -174,21 +177,22 @@ else if (Model.EditGame != null)
 {
     <center>
         <h1>Editing @Model.EditGame.Name (@Model.EditGame.Id)</h1>
-        <h2>Made by:
+        <h2>
+            Made by:
             <a asp-action="ViewUser" asp-controller="Home" asp-route-query="@Model.EditGame.PublisherUserId">@Model.EditGame.PublisherUserId</a>
         </h2>
-        <h4>Last modified: <br/><span class="h5">@Model.EditGame.LastEdited</span></h4>
+        <h4>Last modified: <br /><span class="h5">@Model.EditGame.LastEdited</span></h4>
         <form id="edit-game-form" method="post">
             <div asp-validation-summary="All" class="text-danger"></div>
             <div class="spill-item">
                 <div class="form-group d-none">
                     <label asp-for="Input.GameId" class="h3"></label>
-                    <input asp-for="Input.GameId" class="form-control spill-input"/>
+                    <input asp-for="Input.GameId" class="form-control spill-input" />
                 </div>
 
                 <div class="form-group">
                     <label asp-for="Input.Name" class="h3"></label>
-                    <input asp-for="Input.Name" class="form-control spill-input"/>
+                    <input asp-for="Input.Name" class="form-control spill-input" />
                 </div>
                 @if (Model.EditGame.Images != null && Model.EditGame.Images.Any())
                 {
@@ -320,6 +324,23 @@ else if (Model.EditGame != null)
                 {
                     <h5>No Videos uploaded.</h5>
                 }
+                
+                <h4>Ratings:</h4>
+                <div class="container">
+                    <div class="row">
+                        @foreach (var gameRating in await GameRepository.GetGameRatingsAsync(Model.EditGame.Id))
+                        {
+                            <div class="col-sm-3 col-md-4">
+                                <div class="spill-item">
+                                    <h6>User Id: @gameRating.UserId</h6>
+                                    <h5>Rating: @gameRating.Rating</h5>
+                                    <a href="?deleteRating=@gameRating.Id">Remove Rating</a>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
 
                 <div class="form-group">
                     <label asp-for="Input.Videos"></label>
@@ -328,7 +349,7 @@ else if (Model.EditGame != null)
 
                 <div class="form-group">
                     <label asp-for="Input.DownloadLink" class="h3"></label>
-                    <input asp-for="Input.DownloadLink" class="form-control spill-input"/>
+                    <input asp-for="Input.DownloadLink" class="form-control spill-input" />
                 </div>
 
                 <div class="form-group">
@@ -337,7 +358,7 @@ else if (Model.EditGame != null)
                 </div>
                 <div class="form-group">
                     <label asp-for="Input.Approved" class="h3"></label>
-                    <input asp-for="Input.Approved" class="form-control spill-input"/>
+                    <input asp-for="Input.Approved" class="form-control spill-input" />
                 </div>
             </div>
             <button id="edit-game-button" type="submit" asp-page-handler="EditGame" class="btn btn-primary">Edit Game</button>

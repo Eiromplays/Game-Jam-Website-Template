@@ -1,10 +1,13 @@
 ﻿@page
+@using GameJam.Api.Interfaces
 @model GameJam.Pages.Home.GamesModel
+@inject IGameRepository GameRepository
 @{
     ViewData["Title"] = "Games";
     Layout = "_Layout";
 }
 
+<partial name="_StatusMessage" model="Model.StatusMessage" />
 
 @if (Model.Games != null && Model.Games.Any())
 {
@@ -173,9 +176,47 @@
                                     <h5>No Videos uploaded.</h5>
                                 }
 
+                                <br />
+                                <h2>Average Rating:</h2>
+                                <input value="@game.Rating" type="number" class="rating d-none" min=0 max=5 step=0.5 data-glyphicon="false"
+                                       data-star-captions="" data-default-caption="" disabled>
+
+                                @{
+                                    var ratedGame = await GameRepository.GetRatingAsync(game.Id, Model.CurrentUser.Id);
+
+                                    if (Model.CurrentUser != null &&
+                                        ratedGame == null)
+                                    {
+                                        <h3>Your Rating:</h3>
+                                        <form id="rating-form" method="post">
+                                            <div class="form-group">
+                                                <input gameId="@game.Id" type="number" class="rating d-none" min=0 max=5 step=0.5
+                                                       data-glyphicon="false" data-star-captions="" data-default-caption="" />
+
+                                                <button type="submit" class="btn btn-primary" asp-page-handler="RateGame">Rate Game</button>
+                                            </div>
+                                            <input asp-for="GameId" type="hidden" value="@game.Id" required />
+                                            <input asp-for="Rating" type="hidden" id="rating-@game.Id" required />
+                                        </form>
+                                    }
+                                    else if (Model.CurrentUser != null && ratedGame != null)
+                                    {
+                                        <h3>Your Rating:</h3>
+                                        <form id="rating-form" method="post">
+                                            <div class="form-group">
+                                                <input value="@ratedGame?.Rating" gameId="@game.Id" type="number" class="rating d-none" min=0 max=5
+                                                       step=0.5 data-glyphicon="false" data-star-captions="" data-default-caption="" disabled />
+
+                                                <button type="submit" class="btn btn-primary" asp-page-handler="RemoveRating">Remove Rating</button>
+                                            </div>
+                                            <input asp-for="GameId" type="hidden" value="@game.Id" required />
+                                        </form>
+                                    }
+                                }
+
                                 <h3 class="spill-item-description">Description:</h3>
                                 <p class="spill-item-description">@game.Description</p>
-                        
+
                                 <h3 class="spill-item-publisher">
                                     Made by: <br />
                                     <a asp-action="ViewUser" asp-controller="Home" asp-route-query="@game.PublisherUserId">@game.PublisherUserId</a>

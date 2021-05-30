@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using GameJam.Api.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.Differencing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
@@ -61,6 +62,9 @@ namespace GameJam.Areas.Identity.Pages.Account.Manage
 
             [Required]
             public bool EmailConfirmed { get; set; }
+
+            [Required]
+            public string Username { get; set; }
 
             public string Description { get; set; }
         }
@@ -115,7 +119,8 @@ namespace GameJam.Areas.Identity.Pages.Account.Manage
             {
                 UserId = EditUser.Id,
                 EmailConfirmed = EditUser.EmailConfirmed,
-                Description = EditUser.Description
+                Description = EditUser.Description,
+                Username = EditUser.UserName
             };
 
             AddRoles.Add(new SelectListItem("None", "None", true));
@@ -160,6 +165,7 @@ namespace GameJam.Areas.Identity.Pages.Account.Manage
             }
 
             EditUser.Description = Input.Description ?? "";
+            EditUser.UserName = Input.Username;
 
             EditUser.EmailConfirmed = Input.EmailConfirmed;
             if (await _userManager.UpdateAsync(EditUser) != IdentityResult.Success)

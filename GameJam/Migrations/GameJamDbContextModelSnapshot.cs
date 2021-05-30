@@ -46,11 +46,8 @@ namespace GameJam.Migrations
                     b.Property<string>("PublisherUserId")
                         .HasColumnType("text");
 
-                    b.Property<List<string>>("RatedBy")
-                        .HasColumnType("text[]");
-
-                    b.Property<int>("Rating")
-                        .HasColumnType("integer");
+                    b.Property<float>("Rating")
+                        .HasColumnType("real");
 
                     b.Property<List<string>>("Videos")
                         .HasColumnType("text[]");
@@ -58,6 +55,27 @@ namespace GameJam.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Games");
+                });
+
+            modelBuilder.Entity("GameJam.Api.Models.GameRating", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("GameId")
+                        .HasColumnType("text");
+
+                    b.Property<float>("Rating")
+                        .HasColumnType("real");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("GameRatings");
                 });
 
             modelBuilder.Entity("GameJam.Areas.Identity.Data.GameJamUser", b =>

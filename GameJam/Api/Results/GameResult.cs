@@ -32,6 +32,12 @@
         /// <value>True if not valid/set, otherwise false.</value>
         public bool IsMaxSubmissionsNotSet { get; protected set; }
 
+        /// <summary>
+        /// Returns a flag indicating if the user has rated a game before.
+        /// </summary>
+        /// <value>True if user has voted before, otherwise false.</value>
+        public bool RatedBefore { get; protected set; }
+
         /// <returns>A <see cref="GameResult"/> which represents that something went wrong.</returns>
         public static GameResult Failure { get; } = new GameResult { Failed = true };
 
@@ -46,6 +52,9 @@
 
         /// <returns>A <see cref="GameResult"/> which represents that the Max submissions is not valid or not set.</returns>
         public static GameResult MaxSubmissionsNotSet { get; } = new GameResult { IsMaxSubmissionsNotSet = true };
+
+        /// <returns>A <see cref="GameResult"/> which represents that the user has already rated said game.</returns>
+        public static GameResult AlreadyRated { get; } = new GameResult { RatedBefore = true };
 
         /// <summary>
         /// Converts the value of the current <see cref="GameResult"/> object to its equivalent string representation.

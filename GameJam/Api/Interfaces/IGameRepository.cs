@@ -58,5 +58,23 @@ namespace GameJam.Api.Interfaces
         /// Create/Add a new game.
         /// </summary>
         Task<GameJam.Api.Results.GameResult> AddGameAsync(Game game);
+
+        /// <summary>
+        /// Create/Add a new rating to a game.
+        /// </summary>
+        Task<GameJam.Api.Results.GameResult> AddRatingAsync(string gameId, string userId, float rating);
+
+        /// <summary>
+        /// Remove a new rating from a game.
+        /// </summary>
+        Task<GameJam.Api.Results.GameResult> RemoveRatingAsync(string gameId, string userId);
+
+        /// <summary>
+        /// Get a users rating for a game.
+        /// </summary>
+        Task<GameRating> GetRatingAsync(string gameId, string userId);
+
+        Task<List<GameRating>> GetGameRatingsAsync(string gameId);
+        Task<GameJam.Api.Results.GameResult> RemoveRatingAsync(int id);
     }
 }

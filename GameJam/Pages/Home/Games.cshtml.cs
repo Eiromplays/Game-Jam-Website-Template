@@ -1,3 +1,4 @@
+using System;
 using GameJam.Api.Interfaces;
 using GameJam.Api.Models;
 using GameJam.Areas.Identity.Data;
@@ -32,23 +33,30 @@ namespace GameJam.Pages.Home
 
         public List<string> GamesThatCanBeEditedAdmin { get; set; } = new List<string>();
 
+        [BindProperty]
+        public float Rating { get; set; }
+
+        [BindProperty]
+        public string GameId { get; set; }
+
+        [TempData]
+        public string StatusMessage { get; set; }
+
+        public GameJamUser CurrentUser { get; set; }
+
         /// <summary>
         /// Loads games depending on if the user tries to query or not.
         /// </summary>
         public async Task<IActionResult> OnGetAsync(string query)
         {
-            var user = await _userManager.GetUserAsync(User);
-
-            if (user == null)
-            {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
-            }
+            CurrentUser = await _userManager.GetUserAsync(User);
 
             if (string.IsNullOrEmpty(query))
             {
                 Games = await _gameRepository.GetApprovedGamesAsync();
 
-                await GetGamesUserCanEditAsync(user);
+                if(CurrentUser != null)
+                    await GetGamesUserCanEditAsync(CurrentUser);
 
                 await GetPublisherInformationAsync();
 
@@ -60,7 +68,8 @@ namespace GameJam.Pages.Home
             {
                 Games.Add(selectedGame);
 
-                await GetGamesUserCanEditAsync(user);
+                if (CurrentUser != null)
+                    await GetGamesUserCanEditAsync(CurrentUser);
 
                 await GetPublisherInformationAsync();
 
@@ -73,7 +82,8 @@ namespace GameJam.Pages.Home
             // Removes duplicate objects if any.
             Games = Games.Distinct().ToList();
 
-            await GetGamesUserCanEditAsync(user);
+            if (CurrentUser != null)
+                await GetGamesUserCanEditAsync(CurrentUser);
 
             await GetPublisherInformationAsync();
 
@@ -103,6 +113,42 @@ namespace GameJam.Pages.Home
             {
                 GamesThatCanBeEditedAdmin = Games.Select(g => g.Id).ToList();
             }
+        }
+
+        public async Task<IActionResult> OnPostRateGameAsync()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
+
+            if (!ModelState.IsValid) return Page();
+
+            var result = await _gameRepository.AddRatingAsync(GameId, user.Id, Rating);
+
+            if(result.Succeeded) StatusMessage= "Successfully rated game.";
+            else if(result.RatedBefore) StatusMessage = "Error you have already rated this game.";
+            else StatusMessage = "Error Something went wrong while rating game";
+
+            return RedirectToPage();
+        }
+
+        public async Task<IActionResult> OnPostRemoveRatingAsync()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
+
+            if (!ModelState.IsValid) return Page();
+
+            var result = await _gameRepository.RemoveRatingAsync(GameId, user.Id);
+
+            StatusMessage = result.Succeeded ? "Successfully remove rating." : "Error Something went wrong while removing your rating.";
+
+            return RedirectToPage();
         }
     }
 }

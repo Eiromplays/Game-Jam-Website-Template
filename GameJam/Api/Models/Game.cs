@@ -114,12 +114,7 @@ namespace GameJam.Api.Models
         /// <summary>
         /// Get or set the rating for this game.
         /// </summary>
-        public int Rating { get; set; }
-
-        /// <summary>
-        /// Get or set the people that have rated this game.
-        /// </summary>
-        public List<string> RatedBy { get; set; } = new List<string>();
+        public float Rating { get; set; }
 
         /// <summary>
         /// Returns the name for this game.

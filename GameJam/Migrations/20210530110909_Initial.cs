@@ -52,6 +52,21 @@ namespace GameJam.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "GameRatings",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<string>(type: "text", nullable: true),
+                    GameId = table.Column<string>(type: "text", nullable: true),
+                    Rating = table.Column<float>(type: "real", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GameRatings", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Games",
                 columns: table => new
                 {
@@ -64,8 +79,7 @@ namespace GameJam.Migrations
                     Videos = table.Column<List<string>>(type: "text[]", nullable: true),
                     Approved = table.Column<bool>(type: "boolean", nullable: false),
                     LastEdited = table.Column<string>(type: "text", nullable: true),
-                    Rating = table.Column<int>(type: "integer", nullable: false),
-                    RatedBy = table.Column<List<string>>(type: "text[]", nullable: true)
+                    Rating = table.Column<float>(type: "real", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -232,6 +246,9 @@ namespace GameJam.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "GameRatings");
 
             migrationBuilder.DropTable(
                 name: "Games");

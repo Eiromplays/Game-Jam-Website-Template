@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using GameJam.Api.Extensions;
 using GameJam.Api.Interfaces;
@@ -51,13 +52,113 @@ namespace GameJam.Api.Services
         /// <summary>
         /// Create/Add a new rating to a game.
         /// </summary>
-        public async Task<GameResult> AddRatingAsync(string gameId, string userId)
+        public async Task<GameResult> AddRatingAsync(string gameId, string userId, float rating)
         {
             var game = await GetGameAsync(gameId);
             if(game == null) return GameResult.NotFound;
-            
 
-            return await _dbContext.SaveChangesAsync() >= 1 ? GameResult.Success : GameResult.Failure;
+            var gameRating = await GetRatingAsync(gameId, userId);
+            if (gameRating != null) return GameResult.AlreadyRated;
+
+            await _dbContext.GameRatings.AddAsync(new GameRating(userId, game.Id, rating));
+
+            await _dbContext.SaveChangesAsync();
+
+            var averageRating = await GetAverageRating(gameId);
+
+            if (averageRating <= 0)
+                averageRating = rating;
+
+            game.Rating = averageRating;
+
+            return await UpdateGameAsync(game);
+        }
+
+        private async Task<float> GetAverageRating(string gameId)
+        {
+            var gameRatings = await GetGameRatingsAsync(gameId);
+
+            int ratingNum = gameRatings.Count;
+            float ratings = 0;
+
+            if (ratingNum <= 0) return ratings;
+
+            for (int i = 0; i < ratingNum; i++)
+            {
+                ratings += gameRatings[i].Rating;
+            }
+
+            ratings /= ratingNum;
+
+            return ratings;
+        }
+
+        public async Task<List<GameRating>> GetGameRatingsAsync(string gameId)
+        {
+            return (await _dbContext.GameRatings.ToListAsync()).Where(r => r.GameId == gameId).ToList();
+        }
+
+        /// <summary>
+        /// Get a users rating for a game.
+        /// </summary>
+        public async Task<GameRating> GetRatingAsync(string gameId, string userId)
+        {
+            return await _dbContext.GameRatings.FirstOrDefaultAsync(r => r.UserId == userId && r.GameId == gameId);
+        }
+
+        /// <summary>
+        /// Get a rating for a game.
+        /// </summary>
+        public async Task<GameRating> GetRatingAsync(int id)
+        {
+            return await _dbContext.GameRatings.FirstOrDefaultAsync(r => r.Id == id);
+        }
+
+        /// <summary>
+        /// Remove a new rating from a game.
+        /// </summary>
+        public async Task<GameResult> RemoveRatingAsync(string gameId, string userId)
+        {
+            var game = await GetGameAsync(gameId);
+            if (game == null) return GameResult.NotFound;
+
+            var gameRating = await GetRatingAsync(gameId, userId);
+            if(gameRating == null) return GameResult.NotFound;
+
+            _dbContext.GameRatings.Remove(gameRating);
+
+            await _dbContext.SaveChangesAsync();
+
+            var averageRating = await GetAverageRating(gameId);
+
+            game.Rating = averageRating;
+
+            if (game.Rating < 0 || !(await GetGameRatingsAsync(game.Id)).Any()) 
+                game.Rating = 0;
+
+            return await UpdateGameAsync(game);
+        }
+
+        public async Task<GameResult> RemoveRatingAsync(int id)
+        {
+            var gameRating = await GetRatingAsync(id);
+            if (gameRating == null) return GameResult.NotFound;
+
+            var game = await GetGameAsync(gameRating.GameId);
+            if (game == null) return GameResult.NotFound;
+
+            _dbContext.GameRatings.Remove(gameRating);
+
+            await _dbContext.SaveChangesAsync();
+
+            var averageRating = await GetAverageRating(game.Id);
+
+            game.Rating = averageRating;
+
+            if (game.Rating < 0 || !(await GetGameRatingsAsync(game.Id)).Any())
+                game.Rating = 0;
+
+            return await UpdateGameAsync(game);
         }
 
 

@@ -80,3 +80,19 @@ function HideDelete() {
 
     divToRemove.remove();
 }
+
+$(document).ready(function () {
+    $(".rating").map(function (index, element) {
+        return $(element).on("rating.change",
+            function (event, value, caption) {
+                const gameId = element.getAttribute("gameId");
+                if (gameId === null || gameId === undefined) {
+                    alert("Null");
+                    return;
+                }
+                const ratingInput = $(`#rating-${gameId}`);
+                if (ratingInput === undefined || ratingInput === null) return;
+                ratingInput.val(value);
+            });
+    }).get();
+});

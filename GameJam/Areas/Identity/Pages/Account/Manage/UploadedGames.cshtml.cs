@@ -66,12 +66,20 @@ namespace GameJam.Areas.Identity.Pages.Account.Manage
             public bool Approved { get; set; }
         }
 
-        public async Task<IActionResult> OnGetAsync(string editGameId, string deleteGameId)
+        public async Task<IActionResult> OnGetAsync(string editGameId, string deleteGameId, int deleteRating)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
+
+            if (deleteRating > 0)
+            {
+                var result = await _gameRepository.RemoveRatingAsync(deleteRating);
+                StatusMessage = result.Succeeded ? "Successfully removed rating." : "Error while removing rating.";
+
+                return RedirectToPage();
             }
 
             if (!string.IsNullOrEmpty(deleteGameId))
