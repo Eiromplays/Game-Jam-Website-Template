@@ -45,7 +45,7 @@ namespace GameJam
             services.AddSingleton<IEmailSender, EmailSender>();
             services.AddScoped<IGameRepository, GameRepository>();
 
-            services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(@"C:\temp-keys\"))
+            services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(@"\temp-keys\"))
                 .UseCryptographicAlgorithms(new AuthenticatedEncryptorConfiguration
                 {
                     EncryptionAlgorithm = EncryptionAlgorithm.AES_256_CBC,
