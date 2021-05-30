@@ -1,5 +1,6 @@
 ﻿@page
 @using GameJam.Api.Interfaces
+@using GameJam.Api.Models
 @model GameJam.Pages.Home.GamesModel
 @inject IGameRepository GameRepository
 @{
@@ -182,10 +183,14 @@
                                        data-star-captions="" data-default-caption="" disabled>
 
                                 @{
-                                    var ratedGame = await GameRepository.GetRatingAsync(game.Id, Model.CurrentUser.Id);
+                                    GameRating ratedGame = null;
+                                    if (Model.CurrentUser != null)
+                                    {
+                                        ratedGame = await GameRepository.GetRatingAsync(game.Id, Model.CurrentUser.Id);
+                                    }
 
                                     if (Model.CurrentUser != null &&
-                                        ratedGame == null)
+                                            ratedGame == null)
                                     {
                                         <h3>Your Rating:</h3>
                                         <form id="rating-form" method="post">
@@ -216,7 +221,7 @@
 
                                 <h3 class="spill-item-description">Description:</h3>
                                 <p class="spill-item-description">@game.Description</p>
-                                
+
                                 <h3 class="spill-item-title">
                                     Want to test out the game? <br />
                                     <a class="spill-item-publisher" href="@game.DownloadLink">Download</a>
