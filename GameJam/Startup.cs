@@ -1,3 +1,4 @@
+using System.IO;
 using GameJam.Api.Interfaces;
 using GameJam.Api.Models;
 using GameJam.Api.Services;
@@ -16,6 +17,9 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
+using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationModel;
 
 namespace GameJam
 {
@@ -40,6 +44,13 @@ namespace GameJam
 
             services.AddSingleton<IEmailSender, EmailSender>();
             services.AddScoped<IGameRepository, GameRepository>();
+
+            services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(@"C:\temp-keys\"))
+                .UseCryptographicAlgorithms(new AuthenticatedEncryptorConfiguration
+                {
+                    EncryptionAlgorithm = EncryptionAlgorithm.AES_256_CBC,
+                    ValidationAlgorithm = ValidationAlgorithm.HMACSHA256
+                });
 
             ConfigureExternalProviders(services.AddAuthentication());
         }
