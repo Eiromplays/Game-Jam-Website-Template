@@ -311,3 +311,21 @@ html {
 .users-item-description {
     color: var(--primary);
 }
+
+textarea {
+    color: var(--celadon-blue) !important;
+    background-color: var(--primary) !important;
+}
+
+input {
+    color: var(--celadon-blue) !important;
+    background-color: var(--primary) !important;
+}
+
+textarea:focus {
+    background-color: var(--pink) !important;
+}
+
+input:focus {
+    background-color: var(--pink) !important;
+}
